@@ -1,0 +1,94 @@
+body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      color: #00e0ff;
+      text-align: center;
+      text-shadow: 0 0 15px rgba(0, 224, 255, 0.7);
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: #00bfff;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .about-container {
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .about-section {
+      background-color: #1e1e1e;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 0 20px rgba(0, 224, 255, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .about-section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 25px rgba(0, 224, 255, 0.35);
+    }
+
+    .about-section h3 {
+      color: #00e0ff;
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+    }
+
+    .about-section p {
+      line-height: 1.6;
+      color: #ddd;
+    }
+
+    /* Floating glowing orbs background */
+    .glowing-orbs {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(60px);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: rgba(0, 224, 255, 0.2);
+      top: 20%;
+      left: 10%;
+      animation: float 15s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: rgba(191, 0, 255, 0.15);
+      bottom: 10%;
+      right: 15%;
+      animation: float 18s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(15px, -15px); }
+    }

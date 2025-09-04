@@ -1,0 +1,441 @@
+/* General Page Styles */
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: 2rem;
+  position: relative;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #00e0ff;
+  text-align: center;
+  text-shadow: 0 0 15px rgba(0, 224, 255, 0.7);
+  position: relative;
+  z-index: 5;
+}
+
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  color: #00bfff;
+  position: relative;
+  z-index: 5;
+}
+
+.search-container {
+  width: 80%;
+  max-width: 60rem;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 5;
+}
+
+#search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #555;
+  background-color: #2a2a2a;
+  color: #fff;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+#search-input::placeholder {
+  color: #aaa;
+}
+
+
+/* Users Table */
+.users-table {
+  border-collapse: collapse;
+  width: 90%;
+  max-width: 60rem;
+  background-color: #1e1e1e;
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.5);
+  border-radius: 0.625rem;
+  overflow: hidden;
+  position: relative;
+  z-index: 5;
+}
+
+.users-table th, 
+.users-table td {
+  padding: 0.75rem 1.25rem;
+  text-align: left;
+}
+
+.users-table th {
+  background-color: #333333;
+  color: #00e0ff;
+}
+
+.users-table tr:nth-child(even) {
+  background-color: #2a2a2a;
+}
+
+.users-table tr:hover {
+  background-color: #444444;
+  cursor: pointer;
+}
+
+.users-table button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  color: #fff;
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.4);
+}
+
+/* Add User Button Container */
+.add-user-container {
+  width: 80%;
+  max-width: 60rem; 
+  display: flex;
+  justify-content: flex-end; 
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 5;
+}
+
+.btn-add-user {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.25rem 0.375rem rgba(0,0,0,0.2);
+  transition: background-color 0.3s, transform 0.2s;
+  position: relative; 
+}
+
+.btn-add-user:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.btn-add-user i {
+  pointer-events: none;
+}
+
+/* Modal Background */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal Content */
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: #1e1e1e;
+  padding: 2rem;
+  border-radius: 0.625rem;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 0.25rem 0.625rem rgba(0,0,0,0.5);
+  width: 20rem;
+  max-width: 90%;
+  position: relative;
+  z-index: 1001;
+}
+
+.modal-content p {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #00e0ff;
+}
+
+.modal-content label {
+  text-align: left;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Inputs */
+.input-text {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  margin: 0.5rem 0 1rem 0;
+  border-radius: 0.375rem;
+  border: 1px solid #555;
+  background-color: #2a2a2a;
+  color: #fff;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.input-text::placeholder {
+  color: #aaa;
+}
+
+/* Modal Buttons */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.modal-buttons button {
+  flex: 1;
+  margin: 0 0.5rem;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  color: #fff;
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.4);
+}
+
+/* Button Colors */
+.btn-delete,
+.btn-delete-row,
+.btn-cancel {
+  background-color: #e53935;
+}
+
+.btn-delete:hover,
+.btn-delete-row:hover,
+.btn-cancel:hover {
+  background-color: #ff6659;
+}
+
+.btn-update,
+.btn-update-row {
+  background-color: #1e88e5;
+}
+
+.btn-update:hover,
+.btn-update-row:hover {
+  background-color: #63a4ff;
+}
+
+/* Grid Background */
+.grid-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(18, 18, 18, 0.9) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18, 18, 18, 0.9) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: -1;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Glowing Orbs */
+.glowing-orbs {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(60px);
+  z-index: -2;
+  pointer-events: none;
+}
+
+.orb-1 {
+  width: 300px;
+  height: 300px;
+  background: rgba(0, 224, 255, 0.2);
+  top: 20%;
+  left: 10%;
+  animation: float 15s ease-in-out infinite;
+}
+
+.orb-2 {
+  width: 400px;
+  height: 400px;
+  background: rgba(191, 0, 255, 0.15);
+  bottom: 10%;
+  right: 15%;
+  animation: float 18s ease-in-out infinite;
+}
+
+.orb-3 {
+  width: 250px;
+  height: 250px;
+  background: rgba(0, 255, 170, 0.1);
+  top: 60%;
+  left: 5%;
+  animation: float 12s ease-in-out infinite;
+}
+
+.orb-4 {
+  width: 350px;
+  height: 350px;
+  background: rgba(255, 200, 0, 0.1);
+  top: 10%;
+  right: 5%;
+  animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(20px, 20px);
+  }
+  50% {
+    transform: translate(-10px, 10px);
+  }
+  75% {
+    transform: translate(10px, -10px);
+  }
+}
+
+/* ====================
+   RESPONSIVENESS
+   ==================== */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  .users-table {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+
+  .btn-add-user {
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.5rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+    width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .btn-add-user {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .modal-content {
+    padding: 1rem;
+  }
+  
+  .orb-1, .orb-2, .orb-3, .orb-4 {
+    display: none;
+  }
+}
+
+#context-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+.hidden {
+  display: none;
+}
+
+/* Context Menu */
+#context-menu {
+  position: absolute;
+  background-color: #1e1e1e; /* dark background */
+  border: 1px solid #333;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 224, 255, 0.25),
+              0 0 10px rgba(0, 224, 255, 0.3);
+  z-index: 1000;
+  min-width: 180px;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+/* Each item inside */
+#context-menu button {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+#context-menu button:hover {
+  background-color: #00e0ff22;
+  color: #00e0ff;
+  text-shadow: 0 0 8px rgba(0, 224, 255, 0.8);
+}
+
+#context-menu button:active {
+  background-color: #00e0ff44;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+

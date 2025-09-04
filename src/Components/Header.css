@@ -1,0 +1,67 @@
+/* Header Styles */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #1e1e1e;
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.5);
+  border-radius: 0.625rem;
+  width: 90%;
+  max-width: 60rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.header-logo a {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #00e0ff;
+  text-decoration: none;
+  text-shadow: 0 0 10px rgba(0, 224, 255, 0.5);
+}
+
+.header-nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.header-link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s, text-shadow 0.3s;
+  position: relative;
+}
+
+.header-link:hover {
+  color: #00e0ff;
+  text-shadow: 0 0 8px rgba(0, 224, 255, 0.7);
+}
+
+.header-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #00e0ff;
+  transition: width 0.3s;
+}
+
+.header-link:hover::after {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .header-nav {
+    gap: 1rem;
+  }
+} 
