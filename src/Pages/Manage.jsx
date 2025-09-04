@@ -2,12 +2,28 @@ import './styles/Manage.css'
 import { Header } from '../Components/Header'
 import { useEffect, useState } from 'react'
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+
+// still have to :
+// make the update and delete popups functional
+//     includes creating backend endpoints for deletion and updating
+// make the promote button functoins 
+// allow all the popups to actually popup when clicked and disapear when not 
+// add rba
+// fix the page's ui
+// decouple components if possible 
+// see if any util functions can be used to be put seperately for a cleaner code base 
+
 
 
 export function Manage(){
+const navigate = useNavigate();
+
 const [users , setUsers] = useState([]);// used for users information
 const [departments , setDepartments] = useState([]);// used to get all departments currently in the company
 const [projects , setProjects] = useState([]);// used to get all the projects currently in the company
+
+const [selectedUserId , setSelectedUserId] = useState(null);// to track which user is right clicked
 
 const loadUsers = async() =>{
 let response = await axios.get('http://localhost:3000/users/allUsers/allInfo');
@@ -19,7 +35,7 @@ const loadDepartments = async() =>{
 }
 const loadProjects = async() =>{
     let response = await axios.get('http://localhost:3000/projects');
-    setDepartments(response.data);
+    setProjects(response.data);
 }
 
 const loadData = () =>{
@@ -49,36 +65,44 @@ const getProjects = () =>{
 }
 
 
-const populateTable = (userRole) =>{
-let tableHTML = `
-<thead>
-    <td>Id</td>
-    <td>Name</td>
-    <td>User Name</td>
-    <td>Role</td>
-    <td>Dept. Name</td>
-    <td>Project</td>
-    <td>Promote</td>
-    <td>Fire</td>
-</thead>
-`;
-let content = "";
-users.forEach(user => {
-if (user.role === userRole)
-content += `
-<tr data-id="${user.id}">
-    <td>${user.id}</td>
-    <td>${user.user_name}</td>
-    <td>${user.username}</td>
-    <td>${user.role}</td>
-    <td>${user.dept_name}</td>
-    <td>${user.project_name}</td>
-    <td><button data-id="${user.id}" class="btn-delete-row">Promote</button></td>
-    <td><button data-id="${user.id}" class="btn-update-row">Fire</button></td>
-</tr>
-`;
-});
-return tableHTML + content;
+const populateTable = (userRole) => {
+  return users
+    .filter(user => user.role === userRole)
+    .map(user => (
+      <tr
+        key={user.id}
+        data-id={user.id}
+        onContextMenu={(e) => {
+          e.preventDefault(); // prevent default right-click
+          setSelectedUserId(user.id);
+
+          // show custom context menu
+          const menu = document.getElementById("context-menu");
+          menu.style.top = `${e.pageY}px`;
+          menu.style.left = `${e.pageX}px`;
+          menu.classList.remove("hidden");
+        }}
+      >
+        <td>{user.id}</td>
+        <td>{user.user_name}</td>
+        <td>{user.username}</td>
+        <td>{user.role}</td>
+        <td>{user.dept_name}</td>
+        <td>{user.project_name}</td>
+        <td>
+          <button className="btn-delete-row" data-id={user.id}>Promote</button>
+        </td>
+        <td>
+          <button className="btn-update-row" data-id={user.id}>Fire</button>
+        </td>
+      </tr>
+    ));
+};
+
+
+const goToProfile = () =>{
+    if (selectedUserId)
+        navigate(`/Profile?id=${selectedUserId}`);
 }
 
 return (
@@ -148,7 +172,7 @@ return (
                 className='input-select'
                 >
                     <option value="">-- Select Department --</option>
-                        {getDepartments()}
+                        {getDepartments}
                 </select>
             </div>
             <div className="department-option">
@@ -158,7 +182,7 @@ return (
                 className='input-select'
                 >
                     <option value="">-- Select Project --</option>
-                        {getProjects()}
+                        {getProjects}
                 </select>
             </div>
 
@@ -189,7 +213,10 @@ return (
     </div>
 
     <div id="context-menu" className="hidden">
-        <button id="show-profile">Show Profile</button>
+        <button
+        id="show-profile"
+        onClick={goToProfile}
+        >Show Profile</button>
     </div>
 
 </>

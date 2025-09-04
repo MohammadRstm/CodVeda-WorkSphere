@@ -10,7 +10,7 @@ const db = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "Window7op123!",
-  database: "express_data_base",
+  database: "CodeVeda_lvl_2",
   multipleStatements: true
 });
 
@@ -30,6 +30,12 @@ app.use('/users' , userRouter);
 
 const profileRouter = require('./routes/profiles')(db);
 app.use('/profile' , profileRouter);
+
+const projectsRouter = require('./routes/projects')(db);
+app.use('/projects' , projectsRouter);
+
+const departmentsRouter = require('./routes/departments')(db);
+app.use('/departments' , departmentsRouter);
 
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
