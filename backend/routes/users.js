@@ -12,7 +12,7 @@ router.get("/allUsers", (req, res) => {// get all users
 
 router.get('/allUsers/allInfo' , (req , res) =>{// get all users with all their info (deptName, project exct..)
   db.query(`Select u.id , u.name as user_name , u.username , u.role ,
-                   d.name as dept_name , p.name as project_name
+                   d.name as dept_name , p.name as project_name , u.dep_id , u.project_id
             From Users u , Projects p , Departments d
             Where u.dep_id = d.id and u.project_id = p.id
             order by u.name asc
@@ -39,20 +39,20 @@ router.get("/user/:id", (req, res) => {// get specific user
 
 
 router.post("/add", (req, res) => {// add new user 
-  const { name, age } = req.body;
+  const { user_name, age ,username ,  role , dep_id , project_id } = req.body;
 
-  if (!name || Number.isNaN(age) || age <= 0)
+  if (!user_name || Number.isNaN(age) || age <= 0)
     return res
       .status(400)
       .json({ message: "Invalid or missing name or age" });
 
   db.query(
-    "INSERT INTO User (name, age) VALUES (?, ?)",
-    [name, age],
+    `INSERT INTO Users (name, age ,username , role , dep_id , project_id)
+     VALUES (?, ? , ? , ? , ? , ?)`,
+    [user_name, age , username , role , dep_id , project_id],
     (err, results) => {
       if (err) return res.status(500).json({ error: err });
-      const newUser = {id : results.insertId , age , name}
-      return res.status(200).json(newUser);
+      return res.status(200).json(results);
     }
   );
 });
@@ -86,12 +86,35 @@ router.delete("/delete/:id", (req, res) => {// delete user
   if (Number.isNaN(id) || id <= 0)
     return res.status(400).json({ message: "Invalid or missing ID" });
 
-  db.query("DELETE FROM User WHERE id = ?", [id], (err, results) => {
+  db.query("DELETE FROM Users WHERE id = ?", [id], (err, results) => {
     if (err) return res.status(500).json({ error: err });
     if (results.affectedRows === 0)
       return res.status(404).json({ message: "User not found" });
     return res.status(200).json(results);
   });
+});
+
+
+router.put('/promote/:id/:role' , (req , res) =>{// to promote user's role
+  const{ role , id } = req.params;
+  let newRole = "";
+  if (role === 'admin' || role ==='manager')
+    newRole = "admin";
+  else if (role === 'employee')
+    newRole = "manager";
+  console.log(newRole)
+  db.query(
+    `
+    Update Users
+    set role = ?
+    where id = ?
+    ` , [ newRole , id ] ,
+    (err , results) =>{
+      if (err) return res.status(500).json({error : err});
+      if (results.affectedRows === 0) return res.status(404).json({message : 'User not found'})
+      return res.status(200).json(results);
+    }
+  );
 });
 
 return router;
