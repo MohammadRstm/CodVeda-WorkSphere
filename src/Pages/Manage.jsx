@@ -9,13 +9,13 @@ export function Manage() {
 
   // Data
   const [users, setUsers] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [projects, setProjects] = useState([]);
+  // const [departments, setDepartments] = useState([]);
+  // const [projects, setProjects] = useState([]);
 
   // UI state
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [promoteUser, setPromoteUser] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
+  // const [showAddModal, setShowAddModal] = useState(false);
   const [deleteUser, setDeleteUser] = useState(null);
 
   // Table visibility
@@ -26,15 +26,15 @@ export function Manage() {
    });
 
 
-  // New user form
-  const [newUser, setNewUser] = useState({
-    user_name: "",
-    age: "",
-    username: "",
-    role: "",
-    dep_id: "",
-    project_id: "",
-  });
+  // // New user form
+  // const [newUser, setNewUser] = useState({
+  //   user_name: "",
+  //   age: "",
+  //   username: "",
+  //   role: "",
+  //   dep_id: "",
+  //   project_id: "",
+  // });
 
   // Hide context menu when clicking anywhere
   useEffect(() => {
@@ -53,8 +53,8 @@ export function Manage() {
 
   const loadData = () => {
     loadUsers();
-    loadDepartments();
-    loadProjects();
+    // loadDepartments();
+    // loadProjects();
     
   };
 
@@ -65,29 +65,29 @@ export function Manage() {
     setUsers(response.data);
   };
 
-  const loadDepartments = async () => {
-    const response = await axios.get("http://localhost:3000/departments");
-    setDepartments(response.data);
-  };
+  // const loadDepartments = async () => {
+  //   const response = await axios.get("http://localhost:3000/departments");
+  //   setDepartments(response.data);
+  // };
 
-  const loadProjects = async () => {
-    const response = await axios.get("http://localhost:3000/projects");
-    setProjects(response.data);
-  };
+  // const loadProjects = async () => {
+  //   const response = await axios.get("http://localhost:3000/projects");
+  //   setProjects(response.data);
+  // };
 
-  const getDepartments = () =>
-    departments.map((dep) => (
-      <option key={dep.id} value={dep.id}>
-        {dep.name}
-      </option>
-    ));
+  // const getDepartments = () =>
+  //   departments.map((dep) => (
+  //     <option key={dep.id} value={dep.id}>
+  //       {dep.name}
+  //     </option>
+  //   ));
 
-  const getProjects = () =>
-    projects.map((project) => (
-      <option key={project.id} value={project.id}>
-        {project.name}
-      </option>
-    ));
+  // const getProjects = () =>
+  //   projects.map((project) => (
+  //     <option key={project.id} value={project.id}>
+  //       {project.name}
+  //     </option>
+  //   ));
 
   const populateTable = (userRole) => {
   const filtered = users.filter((user) => user.role === userRole);
@@ -181,8 +181,6 @@ export function Manage() {
 
 
 const Table = ({ role, title }) => {
-  const totalUsers = users.filter((u) => u.role === role).length;
-
   return (
     <>
       <h2 className="section-title">{title}</h2>
@@ -215,47 +213,80 @@ const Table = ({ role, title }) => {
   };
 
   const goToProfile = () => {
-    if (selectedUserId) navigate(`/Profile?id=${selectedUserId}`);
+    if (selectedUserId) navigate(`/profile?id=${selectedUserId}`);
   };
 
-  const promote = async (id, role) => {
+
+
+  const promote = async (id , role) => {
+    const token = localStorage.getItem('token');
+    console.log(token)
+    try{
     const response = await axios.put(
-      `http://localhost:3000/users/promote/${id}/${role}`
+      `http://localhost:3000/users/promote/${id}/${role}` , {} ,
+      {
+        headers : {
+          Authorization : `Bearer ${token}`
+        }
+      }
     );
     console.log(response);
     await loadUsers();
     setPromoteUser(null);
+  }catch(err){
+    if (err.response){
+      alert(err.response.data.message || 'something wen wrong');
+    }else{
+      alert("Network error , please try again later");
+    }
+    setPromoteUser(null);
+  }
   };
 
-  const addUser = async () => {
-    const response = await axios.post("http://localhost:3000/users/add", {
-      user_name: newUser.user_name,
-      age: newUser.age,
-      username: newUser.username,
-      role: newUser.role,
-      dep_id: newUser.dep_id,
-      project_id: newUser.project_id,
-    });
-    console.log(response);
-    await loadUsers();
-    setShowAddModal(false);
-    setNewUser({
-      name: "",
-      age: "",
-      username: "",
-      role: "",
-      department: "",
-      project: "",
-    });
-  };
+  // const addUser = async () => {
+  //   const response = await axios.post("http://localhost:3000/users/add", {
+  //     user_name: newUser.user_name,
+  //     age: newUser.age,
+  //     username: newUser.username,
+  //     role: newUser.role,
+  //     dep_id: newUser.dep_id,
+  //     project_id: newUser.project_id,
+  //   });
+  //   console.log(response);
+  //   await loadUsers();
+  //   setShowAddModal(false);
+  //   setNewUser({
+  //     name: "",
+  //     age: "",
+  //     username: "",
+  //     role: "",
+  //     department: "",
+  //     project: "",
+  //   });
+  // };
 
   const fireUser = async () => {
+    const token = localStorage.getItem("token");
+    try{
     const response = await axios.delete(
-      `http://localhost:3000/users/delete/${deleteUser.id}`
+      `http://localhost:3000/users/delete` ,  
+      {
+        headers : {
+          Authorization : `Bearer ${token}`
+        }
+      }
     );
     console.log(response);
     await loadUsers();
     setDeleteUser(null);
+  }catch(err){
+    if (err.response){
+      alert(err.response.data.message || 'something went wrong');
+    }else{
+      alert("Network error, please try again.");
+    }
+    setDeleteUser(null)
+  }
   };
 
   return (
@@ -293,7 +324,7 @@ const Table = ({ role, title }) => {
           }
            />
         </div>
-        <div className="add-user-container">
+        {/* <div className="add-user-container">
           <button
             id="btn-add-user"
             className="btn-add-user"
@@ -303,7 +334,7 @@ const Table = ({ role, title }) => {
           >
             <i className="fas fa-plus" />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <Table role="employee" title="Employees" />
@@ -338,7 +369,7 @@ const Table = ({ role, title }) => {
       )}
 
       {/* Add modal */}
-      {showAddModal && (
+      {/* {showAddModal && (
         <div id="modal-add" className="modal">
           <div className="modal-content wide">
             <p>Add a new user</p>
@@ -446,7 +477,7 @@ const Table = ({ role, title }) => {
             </div>
 
             <div className="modal-buttons">
-              <button id="btn-add-confirm" className="btn-update" onClick={addUser}>
+              <button id="btn-add-confirm" className="btn-update" onClick={}>
                 Add User
               </button>
               <button
@@ -456,10 +487,10 @@ const Table = ({ role, title }) => {
               >
                 Cancel
               </button>
-            </div>
+            </div> 
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Promote modal */}
       {promoteUser && (

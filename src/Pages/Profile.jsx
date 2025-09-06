@@ -1,8 +1,42 @@
 import "./styles/Profile.css"
 import { Header } from "../Components/Header"
+import { useEffect, useState } from "react";
+import axios from 'axios'
 
 
 export function Profile(){
+
+    const [user , setUser] = useState(null);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [editUser, setEditUser] = useState(null);
+
+    useEffect(() =>{
+       const queryParams = new URLSearchParams(window.location.search);
+       const id = queryParams.get("id");
+       console.log(user)
+       loadUser(id);
+    } , []);
+
+    const loadUser = async (id) =>{
+       let response = await axios.get(`http://localhost:3000/users/user/extended/${id}`);
+       setUser(response.data);
+       setEditUser(response.data);
+    }
+
+    const handleChange = (field, value) => {
+        setEditUser(prev => ({ ...prev, [field]: value }));
+    };
+    const saveChanges = async () =>{
+        let response = await axios.put(`http://localhost:3000/profiles/update/info/${editUser.id}`);
+        console.log(response);
+        setEditUser(null);
+    }
+    const cancleChanges = () =>{
+        setEditUser(user);
+        setIsEditing(false);
+    }
+
 
 return (
 <>
@@ -13,12 +47,14 @@ return (
     <div className="glowing-orbs orb-3"></div>
     <div className="glowing-orbs orb-4"></div>
 
+    {(user) && (
+
     <main className="profile-container">
-        <h1 className="profile-title">User Profile</h1>
+        <h1 className="profile-title">{user.user_name}</h1>
 
         <div className="profile-content">
             <div className="profile-image-container">
-                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="User Profile" className="profile-image"
+                <img src={user.photo_url} alt="User Profile" className="profile-image"
                     id="profile-img"/>
                 <div className="image-upload">
                     <label htmlFor="file-input" className="upload-label">
@@ -37,19 +73,41 @@ return (
                     <div className="info-content">
                         <div className="info-item">
                             <span className="info-label">Name:</span>
-                            <span className="info-value" id="user-name">Mohammad Rostom</span>
+                            {isEditing ? (
+                                <input
+                                type="text"
+                                value={editUser.user_name}
+                                onChange = {(e) => handleChange('user_name' , e.target.value)}
+                                className="input-edit"
+                                />
+                            ) : (
+                             <span className="info-value" id="user-name">{user.user_name}</span>
+                            )}
                         </div>
                         <div className="info-item">
                             <span className="info-label">Age:</span>
-                            <span className="info-value" id="user-age">28</span>
+                            {isEditing ? (
+                                <input
+                                type="text"
+                                value={editUser.age}
+                                onChange = {(e) => handleChange('age' , e.target.value)}
+                                className="input-edit"
+                                />
+                            ) : (
+                                <span className="info-value" id="user-age">{user.age}</span>
+                            )}
                         </div>
                         <div className="info-item">
-                            <span className="info-label">Position:</span>
-                            <span className="info-value" id="user-position">Senior Developer</span>
+                            <span className="info-label">User Name:</span>
+                            <span className="info-value" id="user-age">{user.username}</span>
+                        </div>
+                        <div className="info-item">
+                            <span className="info-label">Role:</span>
+                            <span className="info-value" id="user-position">{user.role}</span>
                         </div>
                         <div className="info-item">
                             <span className="info-label">Department:</span>
-                            <span className="info-value" id="user-department">Engineering</span>
+                            <span className="info-value" id="user-department">{user.dep_name}</span>
                         </div>
                     </div>
                 </div>
@@ -62,11 +120,24 @@ return (
                     <div className="info-content">
                         <div className="info-item">
                             <span className="info-label">Employee ID:</span>
-                            <span className="info-value" id="user-id">CV-2023-789</span>
+                            <span className="info-value" id="user-id">{user.id}</span>
                         </div>
                         <div className="info-item">
                             <span className="info-label">Start Date:</span>
-                            <span className="info-value" id="start-date">January 15, 2020</span>
+                            <span className="info-value" id="start-date">{new Date(user.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="info-card">
+                    <div className="info-header">
+                        <i className="fas fa-briefcase"></i>
+                        <h2>Currently Working On</h2>
+                    </div>
+                    <div className="info-content">
+                        <div className="info-item">
+                            <span className="info-label">Project :</span>
+                            <span className="info-value" id="user-project">{user.project_name}</span>
                         </div>
                     </div>
                 </div>
@@ -77,28 +148,44 @@ return (
                         <h2>Bio</h2>
                     </div>
                     <div className="info-content">
-                        <p id="user-bio">Experienced software developer with a passion for creating innovative
-                            solutions. Specializes in front-end development and user experience design. Enjoys tackling
-                            complex problems and mentoring junior developers. Outside of work, I&apos;m an avid photographer
-                            and hiking enthusiast.</p>
+                        {isEditing ? (
+                           <textarea
+                           className="textarea-edit"
+                           value={editUser.bio}
+                           type="text"
+                           onChange={(e) => handleChange('bio' , e.target.value)} 
+                           ></textarea>
+                        ): (
+                            <p id="user-bio">{user.bio}</p>
+                        )}
                     </div>
                 </div>
 
                 <div className="action-buttons">
-                    <button className="btn-edit" id="btn-edit">
+                    {!isEditing ? (
+                    <button
+                    className="btn-edit"
+                    id="btn-edit"
+                    onClick={() => setIsEditing(true)}
+                    >
                         <i className="fas fa-edit"></i> Edit Profile
                     </button>
-                    <button className="btn-save" id="btn-save" style={{ display: "none" }}>
-                        <i className="fas fa-save"></i> Save Changes
-                    </button>
-                    <button className="btn-cancel" id="btn-cancel" style={{ display: "none" }}>
-                        <i className="fas fa-times"></i> Cancel
-                    </button>
+                    ) : (
+                    <>
+                        <button className="btn-save" id="btn-save" onClick={saveChanges}>
+                            <i className="fas fa-save"></i> Save Changes
+                        </button>
+                        <button className="btn-cancel" id="btn-cancel" onClick={cancleChanges}>
+                            <i className="fas fa-times"></i> Cancel
+                        </button>
+                    </>
+                    )}
                 </div>
 
             </div>
         </div>
     </main>
+    )}
 </>
 );
 }
