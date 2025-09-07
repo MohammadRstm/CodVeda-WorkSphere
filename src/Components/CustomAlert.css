@@ -1,0 +1,43 @@
+.custom-alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  padding: 15px 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 250px;
+  color: white;
+  font-weight: 500;
+  gap: 15px; /* Space between message and button */
+}
+
+.custom-alert-info { background-color: #2196f3; }
+.custom-alert-success { background-color: #4caf50; }
+.custom-alert-error { background-color: #f44336; }
+
+.custom-alert-message {
+  flex: 1; /* Ensures message takes up remaining space */
+}
+
+.custom-alert-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.custom-alert-close:hover {
+  transform: scale(1.2);
+  color: #ffeb3b; /* Highlight on hover */
+}

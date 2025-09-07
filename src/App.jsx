@@ -1,9 +1,9 @@
 import './App.css'
 import { BrowserRouter as Router , Routes, Route } from "react-router-dom";
-import { Home } from './Pages/Home';
-import { AboutUs } from './Pages/AboutUs';
+import { Home } from './Pages/HomePage/Home';
+import { AboutUs } from './Pages/AboutUsPage/AboutUs';
 import {Profile} from './Pages/Profile';
-import { Manage } from './Pages/Manage';
+import { Manage } from './Pages/ManagePage/Manage';
 import { Login } from './Pages/Login';
 import { SignUp } from './Pages/SignUp';
 

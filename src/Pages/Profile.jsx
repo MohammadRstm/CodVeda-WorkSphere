@@ -2,6 +2,8 @@ import "./styles/Profile.css"
 import { Header } from "../Components/Header"
 import { useEffect, useState } from "react";
 import axios from 'axios'
+import { CustomAlert } from "../Components/CustomAlert";
+import { capitalizeWords } from "../utils/capetalizeWords";
 
 
 export function Profile(){
@@ -14,6 +16,9 @@ export function Profile(){
     const [isEditing, setIsEditing] = useState(false);
     const [editUser, setEditUser] = useState(null);
 
+    // showAlerts
+    const [alert, setAlert] = useState(null);
+
     useEffect(() =>{
        const queryParams = new URLSearchParams(window.location.search);
        const id = queryParams.get("id");
@@ -23,7 +28,7 @@ export function Profile(){
     } , []);
 
 
-    const loadUser = async (id) =>{
+const loadUser = async (id) =>{
         try{
          let response = await axios.get(`http://localhost:3000/users/user/extended/${id}`);
          if (response){
@@ -36,36 +41,41 @@ export function Profile(){
          }
         }catch(err){
             if (err.response){
-                alert(err.response.data.message || "Server error, please try again later")
+                showAlert(err.response.data.message || "Server error, please try again later")
             }
         }
-    }
+}
+  // Custom showAlert handler
+  const showAlert = (msg, type = "info") => {
+    setAlert({ msg, type });
+  };
 
-    const handleChange = (field, value) => {
+const handleChange = (field, value) => {
         setEditUser(prev => ({ ...prev, [field]: value }));
-    };
-    const saveChanges = async () =>{
-        try{
-        let response = await axios.put(`http://localhost:3000/profiles/update/info/${editUser.id}` , 
-            {
-                name : editUser.user_name,
-                age : editUser.age,
-                bio : editUser.bio
-            }
-        );
-        console.log(response);
-        setEditUser(editUser);
-        }catch(err){
-            if (err.response)
-                alert(err.response.data.message || "Server error , please try again")
-            else
-                alert("Network error please try again");
-        }
-    }
-    const cancleChanges = () =>{
+};
+const saveChanges = async () => {
+  try {
+    await axios.put(`http://localhost:3000/profiles/update/info/${editUser.id}`, {
+      name: editUser.user_name,
+      age: editUser.age,
+      bio: editUser.bio,
+    });
+    
+    // Update displayed user info
+    setUser({ ...editUser }); 
+    setIsEditing(false);
+    showAlert("Profile updated successfully!", "success");
+
+  } catch (err) {
+    if (err.response) showAlert(err.response.data.message || "Server error, please try again", "error");
+    else showAlert("Network error please try again", "error");
+  }
+};
+
+const cancleChanges = () =>{
         setEditUser(user);
         setIsEditing(false);
-    }
+}
 
 
 const handlePhotoUpload = async (e) => {
@@ -84,18 +94,26 @@ const handlePhotoUpload = async (e) => {
         },
       }
     );
+    console.log(res)
     loadUser(user.id); // reload user data to update image
+    showAlert("Photo uploaded successfully!" , "success")
   } catch (err) {
-    if (err.response) alert(err.response.data.message || "Server error");
-    else alert("Network error, please try again");
+    if (err.response) showAlert(err.response.data.message || "Server error" , "error");
+    else showAlert("Network error, please try again" , "error");
   }
 };
-
 
 
 return (
 <>
     <Header />
+    {alert && (
+        <CustomAlert
+            message={alert.msg}
+            type={alert.type}
+            onClose={() => setAlert(null)}
+        />
+    )}
     <div className="grid-background"></div>
     <div className="glowing-orbs orb-1"></div>
     <div className="glowing-orbs orb-2"></div>
@@ -104,7 +122,7 @@ return (
 
     {(user) && (
     <main className="profile-container">
-        <h1 className="profile-title">{user.user_name}</h1>
+        <h1 className="profile-title">{capitalizeWords(user.user_name)}</h1>
 
         <div className="profile-content">
             <div className="profile-image-container">
