@@ -27,9 +27,11 @@ export function Manage() {
 
   // Hide context menu when clicking anywhere
   useEffect(() => {
-    const hideMenu = () => {
-      const el = document.getElementById("context-menu");
-      if (el) el.classList.add("hidden");
+    const hideMenu = (e) => {
+      if (e.button === 0){
+        const el = document.getElementById("context-menu");
+        if (el) el.classList.add("hidden");
+      }
     };
     document.addEventListener("click", hideMenu);
     return () => document.removeEventListener("click", hideMenu);
@@ -65,10 +67,12 @@ export function Manage() {
           onContextMenu={(e) => {
             e.preventDefault();
             setSelectedUserId(user.id);
+            const container = document.querySelector(".page-container");
+            const rect = container.getBoundingClientRect();
             const menu = document.getElementById("context-menu");
             if (menu) {
-              menu.style.top = `${e.pageY}px`;
-              menu.style.left = `${e.pageX}px`;
+              menu.style.top = `${e.clientY - rect.top}px`;
+              menu.style.left = `${e.clientX - rect.left}px`;
               menu.classList.remove("hidden");
             }
           }}
@@ -265,17 +269,6 @@ const Table = ({ role, title }) => {
               }
               />
             </div>
-            {/* <div className="add-user-container">
-              <button
-                id="btn-add-user"
-                className="btn-add-user"
-                onClick={() => setShowAddModal(true)}
-                aria-label="Add user"
-                title="Add user"
-              >
-                <i className="fas fa-plus" />
-              </button>
-            </div> */}
           </div>
 
           <Table role="admin" title="Admins" />

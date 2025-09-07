@@ -10,6 +10,9 @@ const navigate = useNavigate();
 const [username , setUsername] = useState("");
 const [password , setPassword] = useState("");
 
+const queryParams = new URLSearchParams(window.location.search);
+const logOut = queryParams.get('logout');
+
 const submithtmlForm = async (e) =>{
     e.preventDefault();
     try{
@@ -24,6 +27,10 @@ const submithtmlForm = async (e) =>{
     const payload = JSON.parse(atob(token.split('.')[1]));
     const role = payload.role;
     const id = payload.id;
+
+    if (logOut){
+        localStorage.clear();
+    }
 
     localStorage.setItem(
         "token",

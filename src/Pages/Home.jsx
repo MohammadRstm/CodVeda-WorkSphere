@@ -8,9 +8,9 @@ const navigate = useNavigate();
 
 /*
     tasks to do : 
-    - add project timelines and task managment systems - VL
-    - add a log out function - S
-    - fix profile updates - should be S
+    - add project timelines and task managment systems - VVL
+    - add a log out function - S 
+    - fix profile updates - should be S - was S - Done
     - decouple decoupable components - L
     - use SQL with Sequelize/Prisma. - VVL
     - Implement database indexing and optimization techniques - L - Done

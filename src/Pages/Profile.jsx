@@ -46,9 +46,15 @@ export function Profile(){
     };
     const saveChanges = async () =>{
         try{
-        let response = await axios.put(`http://localhost:3000/profiles/update/info/${editUser.id}`);
+        let response = await axios.put(`http://localhost:3000/profiles/update/info/${editUser.id}` , 
+            {
+                name : editUser.user_name,
+                age : editUser.age,
+                bio : editUser.bio
+            }
+        );
         console.log(response);
-        setEditUser(null);
+        setEditUser(editUser);
         }catch(err){
             if (err.response)
                 alert(err.response.data.message || "Server error , please try again")

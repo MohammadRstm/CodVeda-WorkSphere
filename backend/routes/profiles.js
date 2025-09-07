@@ -43,7 +43,7 @@ router.get('/get/:id' , (req , res) =>{
 router.put('/update/info/:id' ,async (req , res) => {
   const id = req.params.id;
   try{
-  const {name , age  , user_name , bio} = req.body;
+  const {name , age , bio} = req.body;
 
   const [results] = await db.query(
     `
@@ -52,9 +52,9 @@ router.put('/update/info/:id' ,async (req , res) => {
     where user_id = ?;
 
     Update Users 
-    set name = ? , age = ? , username = ?
+    set name = ? , age = ? 
     where id = ?
-    ` , [bio , id , name , age , user_name , id]);
+    ` , [bio , id , name , age , id]);
     if (results.length === 0)
        return res.status(404).json({message : "User not found"});
       return res.status(200).json(results);
