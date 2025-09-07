@@ -13,6 +13,18 @@
   --accent: #63a4ff;
   --success: #22c55e;
 }
+.page-container {
+  width: 90%;
+  max-width: 60rem;
+  margin: 0 auto;      /* center everything horizontally */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center child elements like h1, h3, toolbar, tables */
+  gap: 1.5rem;
+  position: relative;  /* keep orbs and grid behind content */
+  z-index: 5;
+}
+
 
 body {
   background-color: var(--bg);
@@ -21,12 +33,32 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start; /* optional, center vertically if needed */
   margin: 0;
-  padding: 2rem;
+  padding: 0;   /* remove body padding to avoid overflow */
   position: relative;
-  overflow-x: hidden;
   min-height: 100vh;
+
+  overflow: auto; /* scrolling works */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
+
+/* Hide scrollbar for WebKit browsers (Chrome, Safari) */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: calc(100vh - 80px); /* 80px = header height approx */
+  padding: 2rem 0 4rem; /* space on top/bottom */
+  box-sizing: border-box;
+}
+
 
 h1 {
   font-size: 2.5rem;

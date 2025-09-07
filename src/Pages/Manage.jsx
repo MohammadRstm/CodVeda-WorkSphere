@@ -9,13 +9,13 @@ export function Manage() {
 
   // Data
   const [users, setUsers] = useState([]);
-  // const [departments, setDepartments] = useState([]);
-  // const [projects, setProjects] = useState([]);
+
+  // user's data
+  const user = localStorage.getItem('user');
 
   // UI state
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [promoteUser, setPromoteUser] = useState(null);
-  // const [showAddModal, setShowAddModal] = useState(false);
   const [deleteUser, setDeleteUser] = useState(null);
 
   // Table visibility
@@ -24,17 +24,6 @@ export function Manage() {
     manager: 5,
     admin: 5,
    });
-
-
-  // // New user form
-  // const [newUser, setNewUser] = useState({
-  //   user_name: "",
-  //   age: "",
-  //   username: "",
-  //   role: "",
-  //   dep_id: "",
-  //   project_id: "",
-  // });
 
   // Hide context menu when clicking anywhere
   useEffect(() => {
@@ -52,10 +41,7 @@ export function Manage() {
   }, []);
 
   const loadData = () => {
-    loadUsers();
-    // loadDepartments();
-    // loadProjects();
-    
+    loadUsers();    
   };
 
   const loadUsers = async () => {
@@ -64,30 +50,6 @@ export function Manage() {
     );
     setUsers(response.data);
   };
-
-  // const loadDepartments = async () => {
-  //   const response = await axios.get("http://localhost:3000/departments");
-  //   setDepartments(response.data);
-  // };
-
-  // const loadProjects = async () => {
-  //   const response = await axios.get("http://localhost:3000/projects");
-  //   setProjects(response.data);
-  // };
-
-  // const getDepartments = () =>
-  //   departments.map((dep) => (
-  //     <option key={dep.id} value={dep.id}>
-  //       {dep.name}
-  //     </option>
-  //   ));
-
-  // const getProjects = () =>
-  //   projects.map((project) => (
-  //     <option key={project.id} value={project.id}>
-  //       {project.name}
-  //     </option>
-  //   ));
 
   const populateTable = (userRole) => {
   const filtered = users.filter((user) => user.role === userRole);
@@ -243,28 +205,6 @@ const Table = ({ role, title }) => {
   }
   };
 
-  // const addUser = async () => {
-  //   const response = await axios.post("http://localhost:3000/users/add", {
-  //     user_name: newUser.user_name,
-  //     age: newUser.age,
-  //     username: newUser.username,
-  //     role: newUser.role,
-  //     dep_id: newUser.dep_id,
-  //     project_id: newUser.project_id,
-  //   });
-  //   console.log(response);
-  //   await loadUsers();
-  //   setShowAddModal(false);
-  //   setNewUser({
-  //     name: "",
-  //     age: "",
-  //     username: "",
-  //     role: "",
-  //     department: "",
-  //     project: "",
-  //   });
-  // };
-
   const fireUser = async () => {
     const token = localStorage.getItem("token");
     try{
@@ -292,242 +232,119 @@ const Table = ({ role, title }) => {
   return (
     <>
       <Header />
+      <div className="page-container">
+        <div className="page-content">
+          <div className="grid-background" />
+          <div className="glowing-orbs orb-1" />
+          <div className="glowing-orbs orb-2" />
+          <div className="glowing-orbs orb-3" />
+          <div className="glowing-orbs orb-4" />
 
-      <div className="grid-background" />
-      <div className="glowing-orbs orb-1" />
-      <div className="glowing-orbs orb-2" />
-      <div className="glowing-orbs orb-3" />
-      <div className="glowing-orbs orb-4" />
+          <h1>Welcome {user.name}</h1>
+          <h3>List of users</h3>
 
-      <h1>Welcome Mohammad Rostom</h1>
-      <h3>List of users</h3>
+          <div className="toolbar">
+            <div className="search-container">
+              <input
+              type="text"
+              id="search-input"
+              placeholder="Search by user name..."
+              onKeyDown={ (e) =>{
+                if (e.key === 'Enter'){
+                    const query = e.target.value.trim();
+                    if (!query) return;
 
-      <div className="toolbar">
-        <div className="search-container">
-          <input
-          type="text"
-          id="search-input"
-          placeholder="Search by user name..."
-          onKeyDown={ (e) =>{
-            if (e.key === 'Enter'){
-                const query = e.target.value.trim();
-                if (!query) return;
-
-                const user = users.find((u) => u.username.toLowerCase() === query.toLowerCase());
-                 if (user) {
-                    navigate(`/profile?id=${user.id}`);
-                } else {
-                    alert("User not found!");
+                    const user = users.find((u) => u.username.toLowerCase() === query.toLowerCase());
+                    if (user) {
+                        navigate(`/profile?id=${user.id}`);
+                    } else {
+                        alert("User not found!");
+                    }
                 }
-            }
-          }
-          }
-           />
-        </div>
-        {/* <div className="add-user-container">
-          <button
-            id="btn-add-user"
-            className="btn-add-user"
-            onClick={() => setShowAddModal(true)}
-            aria-label="Add user"
-            title="Add user"
-          >
-            <i className="fas fa-plus" />
-          </button>
-        </div> */}
-      </div>
-
-      <Table role="employee" title="Employees" />
-      <Table role="manager" title="Managers" />
-      <Table role="admin" title="Admins" />
-
-      {/* Delete modal */}
-      {deleteUser && (
-        <div id="modal-confirm" className="modal">
-          <div className="modal-content">
-            <p>
-              Are you sure you want to fire <strong>{deleteUser.user_name}</strong>?
-            </p>
-            <div className="modal-buttons">
-              <button
-                id="btn-confirm-yes"
-                className="btn-delete"
-                onClick={fireUser}
-              >
-                Yes
-              </button>
-              <button
-                id="btn-confirm-no"
-                className="btn-cancel"
-                onClick={() => setDeleteUser(null)}
-              >
-                No
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add modal */}
-      {/* {showAddModal && (
-        <div id="modal-add" className="modal">
-          <div className="modal-content wide">
-            <p>Add a new user</p>
-
-            <label htmlFor="input-add-name">Name</label>
-            <input
-              type="text"
-              id="input-add-name"
-              className="input-text"
-              placeholder="Enter name"
-              value={newUser.name}
-              onChange={(e) => setNewUser({ ...newUser, user_name: e.target.value })}
-            />
-
-            <label htmlFor="input-add-age">Age</label>
-            <input
-              type="number"
-              id="input-add-age"
-              className="input-text"
-              placeholder="Enter age"
-              value={newUser.age}
-              onChange={(e) => setNewUser({ ...newUser, age: e.target.value })}
-            />
-
-            <label htmlFor="input-add-username">User Name</label>
-            <input
-              type="text"
-              id="input-add-username"
-              className="input-text"
-              placeholder="Enter User Name"
-              value={newUser.username}
-              onChange={(e) =>
-                setNewUser({ ...newUser, username: e.target.value })
               }
-            />
-
-            <label>Role</label>
-            <div className="role-options">
-              <label className="role-pill">
-                <input
-                  type="radio"
-                  name="role"
-                  value="admin"
-                  checked={newUser.role === "admin"}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, role: e.target.value })
-                  }
-                />
-                Admin
-              </label>
-              <label className="role-pill">
-                <input
-                  type="radio"
-                  name="role"
-                  value="manager"
-                  checked={newUser.role === "manager"}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, role: e.target.value })
-                  }
-                />
-                Manager
-              </label>
-              <label className="role-pill">
-                <input
-                  type="radio"
-                  name="role"
-                  value="employee"
-                  checked={newUser.role === "employee"}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, role: e.target.value })
-                  }
-                />
-                Employee
-              </label>
+              }
+              />
             </div>
-
-            <div className="department-option">
-              <label htmlFor="select-dep-option">Departments</label>
-              <select
-                id="select-dep-option"
-                className="input-select"
-                value={newUser.dep_id}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, dep_id: e.target.value })
-                }
-              >
-                <option value="">-- Select Department --</option>
-                {getDepartments()}
-              </select>
-            </div>
-
-            <div className="department-option">
-              <label htmlFor="select-project-option">Project</label>
-              <select
-                id="select-project-option"
-                className="input-select"
-                value={newUser.project_id}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, project_id: e.target.value })
-                }
-              >
-                <option value="">-- Select Project --</option>
-                {getProjects()}
-              </select>
-            </div>
-
-            <div className="modal-buttons">
-              <button id="btn-add-confirm" className="btn-update" onClick={}>
-                Add User
-              </button>
+            {/* <div className="add-user-container">
               <button
-                id="btn-add-cancel"
-                className="btn-cancel"
-                onClick={() => setShowAddModal(false)}
+                id="btn-add-user"
+                className="btn-add-user"
+                onClick={() => setShowAddModal(true)}
+                aria-label="Add user"
+                title="Add user"
               >
-                Cancel
+                <i className="fas fa-plus" />
               </button>
-            </div> 
+            </div> */}
           </div>
-        </div>
-      )} */}
 
-      {/* Promote modal */}
-      {promoteUser && (
-        <div id="modal-promote" className="modal">
-          <div className="modal-content">
-            <p>
-              Promote <strong>{promoteUser.user_name}</strong>?
-            </p>
-            <p>
-              This will change their role from <strong>{promoteUser.role}</strong> to{" "}
-            </p>
-            <h4>{figureOutPromotion(promoteUser.role)}</h4>
-            <div className="modal-buttons">
-              <button
-                id="btn-promote-confirm"
-                className="btn-promote"
-                onClick={() => promote(promoteUser.id, promoteUser.role)}
-              >
-                Promote
-              </button>
-              <button
-                id="btn-promote-cancel"
-                className="btn-cancel"
-                onClick={() => setPromoteUser(null)}
-              >
-                Cancel
-              </button>
+          <Table role="admin" title="Admins" />
+          <Table role="manager" title="Managers" />
+          <Table role="employee" title="Employees" />
+        </div>
+        {/* Delete modal */}
+        {deleteUser && (
+          <div id="modal-confirm" className="modal">
+            <div className="modal-content">
+              <p>
+                Are you sure you want to fire <strong>{deleteUser.user_name}</strong>?
+              </p>
+              <div className="modal-buttons">
+                <button
+                  id="btn-confirm-yes"
+                  className="btn-delete"
+                  onClick={fireUser}
+                >
+                  Yes
+                </button>
+                <button
+                  id="btn-confirm-no"
+                  className="btn-cancel"
+                  onClick={() => setDeleteUser(null)}
+                >
+                  No
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+        {/* Promote modal */}
+        {promoteUser && (
+          <div id="modal-promote" className="modal">
+            <div className="modal-content">
+              <p>
+                Promote <strong>{promoteUser.user_name}</strong>?
+              </p>
+              <p>
+                This will change their role from <strong>{promoteUser.role}</strong> to{" "}
+              </p>
+              <h4>{figureOutPromotion(promoteUser.role)}</h4>
+              <div className="modal-buttons">
+                <button
+                  id="btn-promote-confirm"
+                  className="btn-promote"
+                  onClick={() => promote(promoteUser.id, promoteUser.role)}
+                >
+                  Promote
+                </button>
+                <button
+                  id="btn-promote-cancel"
+                  className="btn-cancel"
+                  onClick={() => setPromoteUser(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
-      {/* Context menu */}
-      <div id="context-menu" className="hidden">
-        <button id="show-profile" onClick={goToProfile}>
-          Show Profile
-        </button>
+        {/* Context menu */}
+        <div id="context-menu" className="hidden">
+          <button id="show-profile" onClick={goToProfile}>
+            Show Profile
+          </button>
+        </div>
       </div>
     </>
   );

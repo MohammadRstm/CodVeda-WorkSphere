@@ -16,7 +16,7 @@ function auth(req, res, next) {
     req.user = decoded; // attaches user info to request
     next();
   } catch (err) {
-    res.status(401).json({ message: 'Invalid or expired token' });
+    res.status(401).json({ message: 'Invalid or expired token , consider logging in again' });
   }
 }
 

@@ -5,6 +5,9 @@ import axios from 'axios'
 
 
 export function Profile(){
+    
+    const mainUser = JSON.parse(localStorage.getItem('user'));
+    const [showEditButton , setShowEditButton] = useState(true)
 
     const [user , setUser] = useState(null);
 
@@ -14,28 +17,74 @@ export function Profile(){
     useEffect(() =>{
        const queryParams = new URLSearchParams(window.location.search);
        const id = queryParams.get("id");
-       console.log(user)
+       if (id != mainUser.id)
+            setShowEditButton(false)
        loadUser(id);
     } , []);
 
+
     const loadUser = async (id) =>{
-       let response = await axios.get(`http://localhost:3000/users/user/extended/${id}`);
-       setUser(response.data);
-       setEditUser(response.data);
+        try{
+         let response = await axios.get(`http://localhost:3000/users/user/extended/${id}`);
+         if (response){
+            const data = response.data;
+            if (data.photo_url && data.photo_url.startsWith("/uploads")) {
+                data.photo_url = `http://localhost:3000${data.photo_url}`;
+            }
+            setUser(response.data);
+            setEditUser(response.data);
+         }
+        }catch(err){
+            if (err.response){
+                alert(err.response.data.message || "Server error, please try again later")
+            }
+        }
     }
 
     const handleChange = (field, value) => {
         setEditUser(prev => ({ ...prev, [field]: value }));
     };
     const saveChanges = async () =>{
+        try{
         let response = await axios.put(`http://localhost:3000/profiles/update/info/${editUser.id}`);
         console.log(response);
         setEditUser(null);
+        }catch(err){
+            if (err.response)
+                alert(err.response.data.message || "Server error , please try again")
+            else
+                alert("Network error please try again");
+        }
     }
     const cancleChanges = () =>{
         setEditUser(user);
         setIsEditing(false);
     }
+
+
+const handlePhotoUpload = async (e) => {
+  const file = e.target.files[0]; 
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("photo", file);
+  try {
+    const res = await axios.put(
+      `http://localhost:3000/profiles/update/photo/${user.id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    loadUser(user.id); // reload user data to update image
+  } catch (err) {
+    if (err.response) alert(err.response.data.message || "Server error");
+    else alert("Network error, please try again");
+  }
+};
+
 
 
 return (
@@ -48,20 +97,28 @@ return (
     <div className="glowing-orbs orb-4"></div>
 
     {(user) && (
-
     <main className="profile-container">
         <h1 className="profile-title">{user.user_name}</h1>
 
         <div className="profile-content">
             <div className="profile-image-container">
-                <img src={user.photo_url} alt="User Profile" className="profile-image"
+                <img src={user.photo_url } alt="User Profile" className="profile-image"
                     id="profile-img"/>
+                    {showEditButton &&(
                 <div className="image-upload">
                     <label htmlFor="file-input" className="upload-label">
                         <i className="fas fa-camera"></i> Change Photo
                     </label>
-                    <input type="file" id="file-input" className="file-input" accept="image/*" />
+                    <input
+                    type="file"
+                    id="file-input"
+                    name = "photo"
+                    className="file-input"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    />
                 </div>
+                    )}
             </div>
 
             <div className="profile-info">
@@ -160,7 +217,7 @@ return (
                         )}
                     </div>
                 </div>
-
+                {showEditButton && (
                 <div className="action-buttons">
                     {!isEditing ? (
                     <button
@@ -181,6 +238,7 @@ return (
                     </>
                     )}
                 </div>
+                )}
 
             </div>
         </div>

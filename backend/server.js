@@ -1,10 +1,10 @@
 require('dotenv').config()
-
+const path = require('path');
 const express = require("express")
 const mysql = require("mysql2/promise")
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
+
 const app = express()
 
 app.use(express.json()); // parse JSON request body
@@ -32,26 +32,16 @@ db.getConnection((err, connection) => {
   }
 });
 
-function auth(req , res , next){
-  const header = req.header['authorization'];
-  const token = header && header.split(' ')[1];
 
-  if (!token) res.status(401).json({message : 'No Token'});
-  
-  try{
-    const decoded = jwt.verify(token , JWT_SECRET);
-    req.user = decoded;
-    next();
-  }catch(err){
-    res.status(401).json({ message: 'Invalid or expired token' });
-  }
-}
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 const userRouter = require('./routes/users')(db);
 app.use('/users' , userRouter);
 
 const profileRouter = require('./routes/profiles')(db);
-app.use('/profile' , profileRouter);
+app.use('/profiles' , profileRouter);
 
 const projectsRouter = require('./routes/projects')(db);
 app.use('/projects' , projectsRouter);

@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 module.exports = (db) => {
-
+// GET SPECIFIC USER
 router.get('/get/:id' , (req , res) =>{
   const id = req.params.id;
   try{
@@ -39,7 +39,7 @@ router.get('/get/:id' , (req , res) =>{
   }
   
 });
-
+// UPDATE USER'S PROFILE INFO
 router.put('/update/info/:id' ,async (req , res) => {
   const id = req.params.id;
   try{
@@ -62,43 +62,40 @@ router.put('/update/info/:id' ,async (req , res) => {
     return res.status(500).json({message : err.message});
   }
 });
+// UPLOAD USRE'S PHOTO
+router.put('/update/photo/:id', upload.single("photo"), async (req, res) => {
+  const userId = req.params.id;
+  console.log(userId)
+  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
-// router.put('/update/photo/:id', upload.single("photo"), (req, res) => {
-//   const userId = req.params.id;
-//   const newPhotoUrl = `../backend/uploads/${req.file.filename}`;
+  const newPhotoUrl = `/uploads/${req.file.filename}`; // public URL
 
-//   db.query(
-//     `SELECT photo_url FROM Profiles WHERE user_id = ?`,
-//     [userId],
-//     (err, results) => {
-//       if (err) return res.status(500).json({ error: err });
+  try {
+    const [results] = await db.query(
+      `SELECT photo_url FROM Profiles WHERE user_id = ?`,
+      [userId]
+    );
 
-//       if (results.length === 0) {
-//         return res.status(404).json({ message: "User not found" });
-//       }
+    if (results.length === 0) return res.status(404).json({ message: "User not found" });
 
-//       const oldPhotoUrl = results[0].photo_url;
+    const oldPhotoUrl = results[0].photo_url;
+    if (oldPhotoUrl) {
+      const oldPath = path.join(__dirname, "..", oldPhotoUrl.replace('/uploads', 'uploads'));
+      fs.unlink(oldPath, (err) => {
+        if (err) console.log("Old photo not found or already deleted:", err);
+      });
+    }
 
-//       // Step 2: Delete old file from disk if it exists
-//       if (oldPhotoUrl) {
-//         const oldPath = path.join(__dirname, "..", oldPhotoUrl);
-//         fs.unlink(oldPath, (err) => {
-//           if (err) console.log("Old photo not found or already deleted:", err);
-//         });
-//       }
+    await db.query(
+      `UPDATE Profiles SET photo_url = ? WHERE user_id = ?`,
+      [newPhotoUrl, userId]
+    );
 
-//       // Step 3: Update DB with new photo URL
-//       db.query(
-//         `UPDATE Profiles SET photo_url = ? WHERE user_id = ?`,
-//         [newPhotoUrl, userId],
-//         (err, result) => {
-//           if (err) return res.status(500).json({ error: err });
+    res.status(200).json({ url: newPhotoUrl });
 
-//           res.status(200).json({ message: "Photo updated", url: newPhotoUrl });
-//         }
-//       );
-//     }
-//   );
-// });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 return router;
 }

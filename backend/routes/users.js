@@ -27,6 +27,7 @@ module.exports = (db) => {
         "SELECT id FROM Users WHERE username = ?",
         [username]
       );
+
       if (userFound.length > 0) {
         return res.status(409).json({ message: "Username already exists" });
       }
@@ -39,7 +40,7 @@ module.exports = (db) => {
         [name, username, age, hash, defaultDepartmentId, defaultProjectId]
       );
 
-      res.status(201).json({ userId: result.insertId });
+    res.status(201).json({ userId: result.insertId });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: err.message });

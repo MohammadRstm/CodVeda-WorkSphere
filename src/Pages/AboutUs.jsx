@@ -7,11 +7,12 @@ export function AboutUs(){
 return (
 <>
     <Header />
+  <div className="page-wrapper">
+    <div className="page-content">
         <h1>About CodVeda Systems</h1>
         <h2>Bridging Education and Industry, Empowering Tomorrow’s Technologists</h2>
 
         <div className="about-container">
-
             <div className="about-section">
                 <h3>Who We Are</h3>
                 <p>
@@ -71,9 +72,9 @@ return (
                     in their digital transformation journey.
                 </p>
             </div>
-
         </div>
-
+       </div>
+    </div>
         <div className="glowing-orbs orb-1"></div>
         <div className="glowing-orbs orb-2"></div>
 </>

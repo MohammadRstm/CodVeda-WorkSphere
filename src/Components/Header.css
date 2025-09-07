@@ -1,18 +1,33 @@
 /* Header Styles */
 .page-header {
+  width: 100vw;      /* full viewport width */
+  padding: 1rem 0;   /* remove horizontal padding */
+  background-color: #1e1e1e;
+  display: flex;
+  justify-content: center; /* centers inner container */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+
+.page-header .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background-color: #1e1e1e;
-  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.5);
-  border-radius: 0.625rem;
+  max-width: 1200px;
+  margin: 0 auto;  /* center container */
+  width: 100%;
+}
+
+.header-container {
   width: 90%;
   max-width: 60rem;
-  margin-bottom: 2rem;
-  position: relative;
-  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
 
 .header-logo a {
   font-size: 1.8rem;

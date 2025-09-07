@@ -5,14 +5,16 @@ export function Header(){
 const user = JSON.parse(localStorage.getItem('user'));
     return (
         <>
-            <header className="page-header">
-                <div className="header-logo"><Link to="/Home">CodVeda</Link></div>
+           <header className="page-header">
+                <div className="header-container">
+                    <div className="header-logo"><Link to="/Home">CodVeda</Link></div>
                     <nav className="header-nav">
-                        <Link to="/aboutUs" className="header-link">About Us</Link>
-                        <Link to={`/profile?id=${user.id}`} className="header-link">Profile</Link>
-                        <Link to="/manage" className="header-link">List</Link>
+                    <Link to="/manage" className="header-link">Manage</Link>
+                    <Link to="/aboutUs" className="header-link">About Us</Link>
+                    <Link to={`/profile?id=${user.id}`} className="header-link">Profile</Link>
                     </nav>
-            </header>
+                </div>
+           </header>
         </>
     );
 }

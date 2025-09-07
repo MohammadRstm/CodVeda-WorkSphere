@@ -1,20 +1,26 @@
 import './styles/Home.css'
-import { Link } from 'react-router-dom';
+import { Header } from '../Components/Header'
+import { useNavigate } from 'react-router-dom'
 
 
 export function Home(){
+const navigate = useNavigate();
 
+/*
+    tasks to do : 
+    - add project timelines and task managment systems - VL
+    - add a log out function - S
+    - fix profile updates - should be S
+    - decouple decoupable components - L
+    - use SQL with Sequelize/Prisma. - VVL
+    - Implement database indexing and optimization techniques - L - Done
+    - Perform data validation before saving records in db. - L -- DONE
+    - fix the upload image button in the profile page - S - wasn't S but done 
+*/
 
 return(
 <>
-    <header className="page-header">
-        <div className="header-logo"><a href="/">CodVeda</a></div>
-        <nav className="header-nav">
-            <Link to="/aboutUs" className="header-link">About Us</Link>
-            <Link to="/profile" className="header-link">Profile</Link>
-            <Link to="/manage" className="header-link">List</Link>
-        </nav>
-    </header>
+    <Header />
     <main>
         <section className="hero-section">
             <div className="grid-background"></div>
@@ -22,7 +28,7 @@ return(
             <div className="glowing-orbs orb-2"></div>
 
             <div className="typing-container">
-                <h1 id="typing-text"></h1>
+                <h1 id="typing-text">CodVeda-WorkSphere</h1>
             </div>
 
             <p className="subtitle">
@@ -30,7 +36,7 @@ return(
                 and real-world technical experience to aspiring technologists and businesses alike.
             </p>
 
-            <button onClick="window.location.href='list.html'" className="cta-button">Explore Our Talent</button>
+            <button onClick={() => navigate('/manage')} className="cta-button">Explore Our Talent</button>
         </section>
 
         <section className="features-section">
