@@ -49,21 +49,6 @@ const impacts = [
 ];
 
 
-
-/*
-    tasks to do : 
-    - add project timelines and task managment systems - VVL
-    - add a log out function - S - Done
-    - fix profile updates - should be S - was S - Done
-    - decouple decoupable components - L
-    - use SQL with Sequelize/Prisma. - VVL
-    - Implement database indexing and optimization techniques - L - Done
-    - Perform data validation before saving records in db. - L -- DONE
-    - fix the upload image button in the profile page - S - wasn't S but done 
-*/
-
-
-
 return(
 <>
     <Header />

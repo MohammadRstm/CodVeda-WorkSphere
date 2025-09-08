@@ -25,15 +25,15 @@ export function UsersTable({ role, title, users, visibleRows, setVisibleRows, se
             }}
           >
             <td>{user.id}</td>
-            <td>{user.user_name}</td>
+            <td>{user.name}</td>
             <td>{user.username}</td>
             <td>
               <span className={`role-badge role-${user.role}`}>
                 {user.role}
               </span>
             </td>
-            <td>{user.dept_name}</td>
-            <td>{user.project_name}</td>
+            <td>{user.Department?.name || ""}</td>
+            <td>{user.Project?.name || ""}</td>
             <td>
               <button
                 className="btn-promote-row"

@@ -1,17 +1,25 @@
-const express = require('express');
+// routes/departments.js
+const express = require("express");
 const router = express.Router();
+const { Department } = require("../models"); // Sequelize model
 
-
-module.exports = (db) =>{
-router.get('/' , async (req , res) =>{
+module.exports = () => {
+  // GET ALL DEPARTMENTS
+  router.get("/", async (req, res) => {
     try {
-    const [departments] = await db.query('Select id , name From Departments');
-    if (departments.length === 0)
-        return res.status(500).json({message : 'Server error, please try again'});
-    return res.status(200).json({departments : departments});
-    }catch(err){
-        return res.status(500).json({message : 'Server error , please try again'});
+      const departments = await Department.findAll({
+        attributes: ["id", "name"],
+      });
+
+      if (!departments || departments.length === 0) {
+        return res.status(404).json({ message: "No departments found" });
+      }
+
+      res.status(200).json({ departments });
+    } catch (err) {
+      res.status(500).json({ message: "Server error, please try again" });
     }
-});
-return router;
-}
+  });
+
+  return router;
+};
