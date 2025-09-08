@@ -96,7 +96,7 @@ export function Manage() {
   const fireUser = async () => {
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(`http://localhost:3000/users/delete`, {
+      await axios.delete(`http://localhost:3000/users/delete/${deleteUser.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       await loadUsers();

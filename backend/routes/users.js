@@ -16,6 +16,7 @@ module.exports = (db) => {
 router.post("/register", async (req, res) => {
   const defaultProjectId = 7;
   const defaultDepartmentId = 6;
+  const defaultRole = 'employee';
 
   try {
     const { name, age, username, password } = req.body.user;
@@ -35,6 +36,7 @@ router.post("/register", async (req, res) => {
       name,
       username,
       age,
+      role : defaultRole,
       password: hash,
       dep_id: defaultDepartmentId,
       project_id: defaultProjectId,
@@ -124,30 +126,37 @@ router.put("/promote/:id/:role", auth, async (req, res) => {
       return res.status(401).json({ message: "User not authorized" });
     }
 
-    const { id, role } = req.params;
-    let newRole = "";
+    const userId = parseInt(req.params.id, 10);
+    const currentRole = req.params.role.toLowerCase();
+    let newRole;
+    if (currentRole === "employee") {
+      newRole = "manager";
+    } else if (currentRole === "manager") {
+      newRole = "admin";
+    } else if (currentRole === "admin") {
+      return res.status(400).json({ message: "Admin cannot be promoted further" });
+    } else {
+      return res.status(400).json({ message: "Invalid role" });
+    }
 
-    if (role === "admin" || role === "manager") newRole = "admin";
-    else if (role === "employee") newRole = "manager";
-    else return res.status(401).json({ message: "Unauthorized role" });
-
-    const [updated] = await User.update({ role: newRole }, { where: { id } });
+    const [updated] = await User.update({ role: newRole }, { where: { id: userId } });
     if (!updated) return res.status(404).json({ message: "User not found" });
 
-    res.status(200).json({ message: "User promoted successfully" });
+    res.status(200).json({ message: `User promoted to ${newRole} successfully` });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
+
 // DELETE USER
-router.delete("/delete", auth, async (req, res) => {
+router.delete("/delete/:id", auth, async (req, res) => {
   try {
     if (req.user.role !== "admin") {
       return res.status(401).json({ message: "User not authorized" });
     }
 
-    const deleted = await User.destroy({ where: { id: req.user.id } });
+    const deleted = await User.destroy({ where: { id: req.params.id } });
     if (!deleted) return res.status(404).json({ message: "User not found" });
 
     res.status(200).json({ message: "User deleted successfully" });

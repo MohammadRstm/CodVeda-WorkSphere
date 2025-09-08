@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./styles/SignUp.css";
 import axios from 'axios';
 import { useState } from "react";
-import { CustomAlert } from "../Components/CustomAlert"; // make sure path is correct
+import { CustomAlert } from "../Components/CustomAlert";
 
 export function SignUp(){
     const navigate = useNavigate();
