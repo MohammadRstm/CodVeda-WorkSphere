@@ -10,6 +10,7 @@ const user = JSON.parse(localStorage.getItem('user'));
                     <div className="header-logo"><Link to="/Home">CodVeda</Link></div>
                     <nav className="header-nav">
                     <Link to="/manage" className="header-link">Manage</Link>
+                    <a href = '/project' className='header-link'>Projects</a>
                     <Link to="/aboutUs" className="header-link">About Us</Link>
                     <Link to={`/profile?id=${user.id}`} className="header-link">Profile</Link>
                     <Link to="/?logout=true" className='header-link'>Log out</Link>

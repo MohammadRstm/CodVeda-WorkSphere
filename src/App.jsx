@@ -7,7 +7,7 @@ import { Manage } from './Pages/ManagePage/Manage';
 import { Login } from './Pages/Login';
 import { SignUp } from './Pages/SignUp';
 import { Task } from './Pages/Task';
-import { Project } from './Pages/Project';
+import { Project } from './Pages/Project/Project';
 
 
 function App() {

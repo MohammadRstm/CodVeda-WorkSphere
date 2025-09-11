@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require("sequelize");
 
 const sequelize = new Sequelize(
-  process.env.DB_NAME || "CodeVeda_lvl_2",   // database
+  process.env.DB_NAME || "codveda_level3",   // database
   process.env.DB_USER || "root",             // username
   process.env.DB_PASSWORD || "Window7op123!",// password
   {

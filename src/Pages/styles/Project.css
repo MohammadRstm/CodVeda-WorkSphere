@@ -1,0 +1,298 @@
+/* ====== Projects Page ====== */
+.page-container {
+  width: 90%;
+  max-width: 60rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 5;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem;
+  color: var(--brand);
+  text-align: center;
+  text-shadow: 0 0 15px rgba(0, 224, 255, 0.7);
+  position: relative;
+  z-index: 5;
+}
+
+/* ====== Table ====== */
+.users-table {
+  border-collapse: collapse;
+  width: 100%;
+  background-color: var(--surface);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.5);
+  border-radius: 0.625rem;
+  overflow: hidden;
+  position: relative;
+  z-index: 5;
+  margin-bottom : 30px;
+}
+
+.users-table th,
+.users-table td {
+  padding: 0.75rem 1.25rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.users-table th {
+  background-color: #333333;
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.users-table tr:nth-child(even) {
+  background-color: var(--surface-2);
+}
+
+.users-table tr:hover {
+  background-color: #444444;
+}
+
+/* ====== Progress Bar ====== */
+.progress-bar-container {
+  width: 100%;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #555;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 0.5rem;
+  transition: width 1s ease, background-color 1s ease;
+}
+
+/* Tooltip for progress bar */
+.progress-bar[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--surface-2);
+  color: var(--text);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.users-table tr:hover td:not(:first-child) {
+  background-color: #444444; 
+}
+
+
+#context-menu {
+  position: fixed;
+  background-color: var(--surface);
+  border: 1px solid #333;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0;
+  box-shadow:
+    0 0.25rem 0.75rem rgba(0, 224, 255, 0.25),
+    0 0 10px rgba(0, 224, 255, 0.3);
+  z-index: 1000;
+  min-width: 180px;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+#context-menu button {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+#context-menu button:hover {
+  background-color: #00e0ff22;
+  color: var(--brand);
+  text-shadow: 0 0 8px rgba(0, 224, 255, 0.8);
+}
+
+.hidden { display: none; }
+
+/* Project Details Container */
+.project-details-container {
+  width: 90%;
+  max-width: 60rem;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.project-details-container h1 {
+  text-align: center;
+  color: var(--brand);
+  text-shadow: 0 0 15px rgba(0, 224, 255, 0.7);
+}
+
+.project-info {
+  background: linear-gradient(145deg, #1c1c1c, #2a2a2a);
+  padding: 2rem 2.5rem;
+  border-radius: 1rem;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  box-shadow:
+    0 0 20px rgba(0, 224, 255, 0.2),
+    0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 224, 255, 0.3);
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-info:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 0 25px rgba(0, 224, 255, 0.4),
+    0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.info-item {
+  font-size: 1.1rem;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background-color: rgba(0, 224, 255, 0.05);
+  border-radius: 0.75rem;
+  text-align: center;
+  transition: background 0.3s ease;
+}
+
+.info-item span {
+  font-weight: 600;
+  color: var(--brand);
+  margin-bottom: 0.25rem;
+}
+
+.info-item:hover {
+  background-color: rgba(0, 224, 255, 0.15);
+}
+
+/* Tasks Section */
+.tasks-section {
+  width: 100%;
+}
+
+.tasks-section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--brand);
+}
+
+/* No tasks message */
+.no-tasks-msg {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #ccc;
+  padding: 1rem 0;
+}
+
+
+.project-progress-section {
+  margin-top: 40px; /* add space from table */
+  text-align: center;
+}
+
+.project-progress-section h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #adadad;
+}
+
+.progress-wrapper {
+  width: 100%;
+  max-width: 800px; /* keeps it from being too wide on big screens */
+  margin: 0 auto; /* center horizontally */
+  background-color: #f1f1f1;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 30px;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.progress-bar-large {
+  height: 100%;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.progress-label {
+  margin-top: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #979797;
+}
+
+.admin-actions-container {
+  margin: 40px auto;
+  padding: 20px 30px;
+  max-width: 600px;
+  background: rgba(58, 58, 58, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.admin-actions-container h2 {
+  margin-bottom: 20px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #f8f8f8;
+}
+
+.admin-actions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-actions-list li {
+  margin: 12px 0;
+}
+
+.admin-actions-list a {
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: #007bff;
+  transition: color 0.3s ease;
+}
+
+.admin-actions-list a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  .users-table { font-size: 0.9rem; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.6rem; }
+  .users-table th, .users-table td { padding: 0.5rem; font-size: 0.85rem; }
+}

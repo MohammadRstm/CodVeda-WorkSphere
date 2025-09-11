@@ -14,7 +14,7 @@ module.exports = (db) => {
   const { User, Department, Project, Profile } = db; 
 
 router.post("/register", async (req, res) => {
-  const defaultProjectId = 7;
+  const defaultProjectId = 8;
   const defaultDepartmentId = 6;
   const defaultRole = 'employee';
 

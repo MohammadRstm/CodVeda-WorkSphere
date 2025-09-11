@@ -9,8 +9,6 @@ function auth(req, res, next) {
     return res.status(401).json({ message: 'No token provided' });
   }
 
-  console.log(token)
-
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded; // attaches user info to request
