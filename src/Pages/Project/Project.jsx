@@ -6,6 +6,8 @@ import { CustomAlert } from "../../Components/CustomAlert";
 import { ProjectAdminTable } from "./ProjectAdminTable";
 import { ProjectDetails } from "./ProjectDetails";
 import { ProjectCreationForm } from "./ProjectCreationForm";
+import { ProjectContextMenu } from "./ProjectContextMenu";
+import { ProjectDeletePrompt } from "./ProjectDeletePrompt";
 
 export function Project() {
     const [alert, setAlert] = useState(null); // for custom alert 
@@ -428,7 +430,7 @@ export function Project() {
                         </>
                     )}
 
-                    {/* FOR MANAGERS AND EMPLOYEES AND ADMINS */}
+                    {/* FOR MANAGERS AND EMPLOYEES (ADMINS CAN ACCESS THROUGH CONTEXT MENU) */}
                     {projectDetails && (
                         <ProjectDetails
                             projectDetails={projectDetails}
@@ -444,40 +446,19 @@ export function Project() {
                     )}
 
                     {/* Context Menu */}
-                    <div id="context-menu" className="hidden">
-                        <button id="show-profile" onClick={getProjectDetails}>
-                            details
-                        </button>
-                        <button
-                            id="edit-action"
-                            onClick={() => {
-                                setEditProject(selectedProject);
-                                setUpdateForm({
-                                    newDeadLine: selectedProject.deadline.split('T')[0],
-                                    newManager: selectedProject.managerId,
-                                    newName: selectedProject.name
-                                });
-                            }}
-                        >
-                            edit
-                        </button>
-                        <button
-                            id='delete-button'
-                            onClick={() => { setDeleteProject(selectedProject) }}
-                        >
-                            delete
-                        </button>
-                    </div>
-
+                    <ProjectContextMenu
+                    selectedProject={selectedProject}
+                    setDeleteProject={setDeleteProject}
+                    setEditProject={setEditProject}
+                    getProjectDetails={getProjectDetails}
+                    setUpdateForm={setUpdateForm}
+                    />
+                    {/* Delete Prompt */}
                     {deleteProject && (
-                        <div className="delete-prompt-overlay">
-                            <div className="delete-prompt">
-                                <h3>Are you sure you want to remove this project?</h3>
-                                <p>(Any tasks related to this project will be deleted as well)</p>
-                                <button onClick={removeProject}>Confirm</button>
-                                <button onClick={() => setDeleteProject(null)}>Cancel</button>
-                            </div>
-                        </div>
+                        <ProjectDeletePrompt
+                        setDeleteProject={setDeleteProject}
+                        removeProject={removeProject}
+                        />
                     )}
                 </>
             )}
