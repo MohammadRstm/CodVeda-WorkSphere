@@ -32,6 +32,7 @@ export function Project() {
     const userId = JSON.parse(localStorage.getItem("user")).id;
     const username = JSON.parse(localStorage.getItem("user")).userName;
 
+    const BASE_URL = import.meta.env.VITE_API_URL;// import base url from env file
 
     const handleChange = (e) => {
         setUpdateForm({ ...updateForm, [e.target.name]: e.target.value });
@@ -42,7 +43,7 @@ export function Project() {
 
         try {
             const response = await axios.put(
-                `http://localhost:3000/projects/update/${editProject.id}/${editProject.managerId}`,
+                `${BASE_URL}/projects/update/${editProject.id}/${editProject.managerId}`,
                 {
                     newName: updateForm.newName,
                     newManager: updateForm.newManager,
@@ -58,7 +59,7 @@ export function Project() {
             setEditProject(null);
 
             // ✅ Re-fetch all projects to reflect the swap immediately
-            const res = await axios.get("http://localhost:3000/projects/extend/departments", {
+            const res = await axios.get(`${BASE_URL}/projects/extend/departments`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -97,7 +98,7 @@ export function Project() {
 
     const removeProject = async () => {
         try {
-            await axios.delete('http://localhost:3000/projects/delete', {
+            await axios.delete(`${BASE_URL}/projects/delete`, {
                 data: { projectId: deleteProject.id },
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -106,7 +107,7 @@ export function Project() {
             setDeleteProject(null);
 
             // we need to update projects again
-            const res = await axios.get("http://localhost:3000/projects/extend/departments", {
+            const res = await axios.get(`${BASE_URL}/projects/extend/departments`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -144,7 +145,7 @@ export function Project() {
 
     const loadDepartmenst = async () => {
         try {
-            const response = await axios.get("http://localhost:3000/departments/allDepartments");
+            const response = await axios.get(`${BASE_URL}/departments/allDepartments`);
             setDepartments(response.data);
         } catch (err) {
             if (err.response)
@@ -156,7 +157,7 @@ export function Project() {
 
     const loadManagers = async () => {
         try {
-            const response = await axios.get("http://localhost:3000/users/managers");
+            const response = await axios.get(`${BASE_URL}/users/managers`);
             setManagers(response.data);
         } catch (err) {
             if (err.response)
@@ -168,7 +169,7 @@ export function Project() {
 
     const loadEmployees = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/users/all/employees');
+            const response = await axios.get(`${BASE_URL}/users/all/employees`);
             setEmployees(response.data);
         } catch (err) {
             if (err.response)
@@ -216,7 +217,7 @@ export function Project() {
         const fetchProjects = async () => {
             if (!projectId) { // normal admin page (overview of all projects)
                 try {
-                    const res = await axios.get("http://localhost:3000/projects/extend/departments", {
+                    const res = await axios.get(`${BASE_URL}/projects/extend/departments`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     const data = res.data;
@@ -252,7 +253,7 @@ export function Project() {
 
             } else { // show project details for admin 
                 try {
-                    const response = await axios.get(`http://localhost:3000/projects/details/${projectId}`, {
+                    const response = await axios.get(`${BASE_URL}/projects/details/${projectId}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     const data = response.data;
@@ -269,7 +270,7 @@ export function Project() {
         if (userId) { // show page for managers and employees (project details straight away)
             const getProjectForUser = async () => {
                 try {
-                    const response = await axios.get(`http://localhost:3000/projects/details/user/${userId}`, {
+                    const response = await axios.get(`${BASE_URL}/projects/details/user/${userId}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     const data = response.data;
@@ -324,7 +325,7 @@ export function Project() {
 
     const submitTask = async (taskId) => {
         try {
-            await axios.put('http://localhost:3000/tasks/update', { taskId }, {
+            await axios.put(`${BASE_URL}/tasks/update`, { taskId }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -347,7 +348,7 @@ export function Project() {
 
     const getCompletionPercentage = async (projectId) => {
         try {
-            const res = await axios.get(`http://localhost:3000/projects/progress/${projectId}`);
+            const res = await axios.get(`${BASE_URL}/projects/progress/${projectId}`);
             return res?.data?.ratio ? res.data.ratio * 100 : 0;
         } catch (err) {
             if (!err.response) showAlert("Network error, please try again later");

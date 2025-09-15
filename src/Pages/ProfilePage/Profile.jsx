@@ -15,6 +15,9 @@ export function Profile(){
     const [editUser, setEditUser] = useState(null);
     const [alert, setAlert] = useState(null);
 
+    const BASE_URL = import.meta.env.VITE_API_URL;// import base url from env file
+
+
     useEffect(() =>{
        const queryParams = new URLSearchParams(window.location.search);
        const id = queryParams.get("id");
@@ -24,7 +27,7 @@ export function Profile(){
 
     const loadUser = async (id) =>{
         try{
-            let response = await axios.get(`http://localhost:3000/users/user/extended/${id}`);
+            let response = await axios.get(`${BASE_URL}/users/user/extended/${id}`);
             if (response){
                 const data = response.data;
                 const userData = {
@@ -35,7 +38,7 @@ export function Profile(){
                     role: data.role,
                     dep_name: data.Department?.name || "",
                     project_name: data.Project?.name || "",
-                    photo_url: data.Profile?.photo_url ? `http://localhost:3000${data.Profile.photo_url}` : "",
+                    photo_url: data.Profile?.photo_url ? `${data.Profile.photo_url}` : "",
                     bio: data.Profile?.bio || "",
                     created_at: data.created_at
                 };
@@ -57,7 +60,7 @@ export function Profile(){
 
     const saveChanges = async () => {
         try {
-            await axios.put(`http://localhost:3000/profiles/update/info/${editUser.id}`, {
+            await axios.put(`${BASE_URL}/profiles/update/info/${editUser.id}`, {
                 name: editUser.user_name,
                 age: editUser.age,
                 bio: editUser.bio,
@@ -83,7 +86,7 @@ export function Profile(){
         formData.append("photo", file);
         try {
             await axios.put(
-                `http://localhost:3000/profiles/update/photo/${user.id}`,
+                `${BASE_URL}/profiles/update/photo/${user.id}`,
                 formData,
                 { headers: { "Content-Type": "multipart/form-data" } }
             );

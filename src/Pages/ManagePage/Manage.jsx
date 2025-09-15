@@ -37,6 +37,8 @@ export function Manage() {
     { role: 'employee', title: 'Employees' },
   ];
 
+  const BASE_URL = import.meta.env.VITE_API_URL;// import base url from env file
+
   // Hide context menu on click
   useEffect(() => {
     const hideMenu = (e) => {
@@ -57,7 +59,7 @@ export function Manage() {
   const loadUsers = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/users/allUsers/allInfo"
+        `${BASE_URL}/users/allUsers/allInfo`
       );
       setUsers(response.data);
     } catch (err) {
@@ -79,7 +81,7 @@ export function Manage() {
     const token = localStorage.getItem("token");
     try {
       await axios.put(
-        `http://localhost:3000/users/promote/${id}/${role}`,
+        `${BASE_URL}/users/promote/${id}/${role}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -96,7 +98,7 @@ export function Manage() {
   const fireUser = async () => {
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(`http://localhost:3000/users/delete/${deleteUser.id}`, {
+      await axios.delete(`${BASE_URL}/users/delete/${deleteUser.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       await loadUsers();

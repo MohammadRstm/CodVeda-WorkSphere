@@ -26,6 +26,8 @@ export function ProjectCreationForm({ departments, managers , employees}) {
   const [depId , setDepId] = useState(null);
   // for min deadline date 
   const today = new Date().toISOString().split("T")[0];
+  const BASE_URL = import.meta.env.VITE_API_URL;// import base url from env file
+
 
 
   useEffect(() => {
@@ -82,7 +84,7 @@ export function ProjectCreationForm({ departments, managers , employees}) {
   const submitTasksForm = async () =>{
     const token = localStorage.getItem('token');
     try{
-        await axios.post('http://localhost:3000/tasks/addTasks' , {
+        await axios.post(`${BASE_URL}/tasks/addTasks` , {
             tasks
         }, {
             headers : {
@@ -106,7 +108,7 @@ export function ProjectCreationForm({ departments, managers , employees}) {
   const submitForm = async () =>{
     const token = localStorage.getItem('token');
     try{
-        const response = await axios.post('http://localhost:3000/projects/addProject' , {
+        const response = await axios.post(`${BASE_URL}/projects/addProject` , {
             formData 
         } , {
             headers : {
