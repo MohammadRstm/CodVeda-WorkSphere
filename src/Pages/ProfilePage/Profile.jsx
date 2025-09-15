@@ -38,7 +38,7 @@ export function Profile(){
                     role: data.role,
                     dep_name: data.Department?.name || "",
                     project_name: data.Project?.name || "",
-                    photo_url: data.Profile?.photo_url ? `${data.Profile.photo_url}` : "",
+                    photo_url: data.Profile?.photo_url ? `${BASE_URL}${data.Profile.photo_url}` : "",
                     bio: data.Profile?.bio || "",
                     created_at: data.created_at
                 };

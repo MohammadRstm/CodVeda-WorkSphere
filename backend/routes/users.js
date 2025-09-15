@@ -186,7 +186,7 @@ router.get("/user/extended/:id", async (req, res) => {
     });
 
     if (!user) return res.status(404).json({ message: "User not found" });
-
+    console.log(user)
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });

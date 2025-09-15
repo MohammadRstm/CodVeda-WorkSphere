@@ -1,6 +1,5 @@
 export function ProfileImage({user , showEditButton , handlePhotoUpload}){
-    
-
+     
     return (
          <div className="profile-image-container">
                 <img src={user.photo_url } alt="User Profile" className="profile-image"
