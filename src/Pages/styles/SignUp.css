@@ -122,7 +122,7 @@ body {
     padding-left: 0.5rem;
 }
 
-.input-group input {
+.input-group input , select {
     width: 100%;
     padding: 1rem 1.2rem 1rem 3rem;
     border: none;

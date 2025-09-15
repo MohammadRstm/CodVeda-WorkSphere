@@ -3,6 +3,7 @@ import './styles/Login.css';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { CustomAlert } from '../Components/CustomAlert';
+import {jwtDecode} from "jwt-decode";
 
 export function Login() {
   const navigate = useNavigate();
@@ -27,14 +28,16 @@ export function Login() {
       });
 
       const token = results.data.token;
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = jwtDecode(token);
+      console.log(payload)
       const role = payload.role;
       const id = payload.id;
+      const userName = payload.username;
 
       if (logOut) localStorage.clear();
 
       localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify({ id, role }));
+      localStorage.setItem("user", JSON.stringify({ id, role , userName }));
 
       showAlert("Login successful!", "success"); // Show success alert
       setTimeout(() => navigate("/Home"), 1000); // Navigate after 1s

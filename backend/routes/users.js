@@ -14,12 +14,11 @@ module.exports = (db) => {
   const { User, Department, Project, Profile } = db; 
 
 router.post("/register", async (req, res) => {
-  const defaultProjectId = 8;
-  const defaultDepartmentId = 6;
+  const defaultProjectId = 32;
   const defaultRole = 'employee';
 
   try {
-    const { name, age, username, password } = req.body.user;
+    const { name, age, username, password , department} = req.body.user;
 
     if (!username || !password) {
       return res.status(400).json({ message: "Username & password required" });
@@ -38,7 +37,7 @@ router.post("/register", async (req, res) => {
       age,
       role : defaultRole,
       password: hash,
-      dep_id: defaultDepartmentId,
+      dep_id: department,
       project_id: defaultProjectId,
     });
 
@@ -95,9 +94,19 @@ router.get("/allUsers/allInfo", async (req, res) => {
 
     res.status(200).json(users);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
+
+// GET ALL EMPLOYEES
+router.get('/all/employees' , async (req , res) =>{
+  try{
+    const employees = await User.findAll({where : {role : 'employee'}});
+    res.status(200).json(employees);
+  }catch(err){
+    res.status(500).json({ message: err.message });
+  }
+})
 
 // GET SPECIFIC USER
 router.get("/user/:id", async (req, res) => {
@@ -183,6 +192,20 @@ router.get("/user/extended/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// GET ALL MANAGERS
+router.get("/managers" , async (req , res) =>{
+  try{
+    const dep_id = req.params.depId;
+    const managers = await User.findAll({where : {role : "manager"}});
+    if (!managers)
+      res.status(404).json({message : 'No managers in chosen departent'});
+    res.status(200).json(managers);
+  }catch(err){
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 return router;
 }

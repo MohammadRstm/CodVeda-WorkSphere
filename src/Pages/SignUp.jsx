@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./styles/SignUp.css";
 import axios from 'axios';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CustomAlert } from "../Components/CustomAlert";
 
 export function SignUp(){
@@ -11,9 +11,26 @@ export function SignUp(){
         name : "",
         username : "",
         age : "",
-        password : ""
+        password : "",
+        department : ""
     });
     const [passwordConfirm , setPasswordConfirm] = useState("");
+    const [departments , setDepartments] = useState([]);
+
+    useEffect (() =>{
+        const loadDepartments = async () =>{
+            try{
+                const response = await axios.get("http://localhost:3000/departments/allDepartments");
+                setDepartments(response.data);
+            }catch(err){
+                if(err.response)
+                    showAlert(err.response.data.message || 'Server error, please try again');
+                else
+                    showAlert("Network error, please try again later");
+            }
+        }
+        loadDepartments();
+    }, []);
 
     // Custom alert state
     const [alert, setAlert] = useState(null);
@@ -102,6 +119,25 @@ export function SignUp(){
                         <input type="password" id="confirmPassword" placeholder="Confirm your password"
                         onChange = {(e) => setPasswordConfirm(e.target.value)}
                         value={passwordConfirm}  />
+                        <i className="fas fa-lock"></i>
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="department">Department</label>
+                         <select
+                            name="department"
+                            value={user.department}
+                            onChange={(e) => {setUser({...user , department : e.target.value})}}
+                            required
+                            >
+                            <option value="">Select department</option>
+                            {departments
+                            .filter(dep => dep.name !== 'Demo')
+                            .map((dep) => (
+                                <option key={dep.id} value={dep.id}>
+                                {dep.name}
+                                </option>
+                            ))}
+                        </select>
                         <i className="fas fa-lock"></i>
                     </div>
                     

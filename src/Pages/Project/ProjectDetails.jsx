@@ -1,4 +1,6 @@
-export function ProjectDetails({projectDetails , getBarColor , getProgress ,projectProgress}){
+export function ProjectDetails({projectDetails , getBarColor , getProgress ,projectProgress , role , submitTask
+    , userId , assignTask , username 
+}){
 
     return (
      <div className="page-container project-details-container">
@@ -13,6 +15,14 @@ export function ProjectDetails({projectDetails , getBarColor , getProgress ,proj
 
                 <div className="tasks-section">
                 <h2>Tasks</h2>
+                 {role === 'manager' && (
+                        <button
+                        className="assign-btn"
+                        onClick={() => assignTask(userId , projectDetails.id , username , projectDetails.dep_id)}
+                        >
+                            Assign new tasks
+                        </button>
+                    )}
                 {projectDetails.tasks && projectDetails.tasks.length > 0 ? (
                     <>
                     <table className="users-table">
@@ -25,6 +35,7 @@ export function ProjectDetails({projectDetails , getBarColor , getProgress ,proj
                         <th>Assigned To</th>
                         <th>Username</th>
                         <th>State</th>
+                        {role === 'employee' ? <><th>Submit Task</th></> : <></>}
                         </tr>
                     </thead>
                     <tbody>
@@ -37,31 +48,38 @@ export function ProjectDetails({projectDetails , getBarColor , getProgress ,proj
                             <td>{task.assignedTo}</td>
                             <td>{task.username}</td>
                             <td>{task.state}</td>
+                            {role === 'employee' ? <><td>
+                                <button
+                                onClick={() => submitTask(task.id)}
+                                className="task-submit-btn"
+                                >Submit
+                                </button>
+                                </td></> : <></>}
                         </tr>
                         ))}
                     </tbody>
                     </table>
-                    
-                   <div className="project-progress-section">
-                        <h2>Overall Project Progress</h2>
-                        <div className="progress-wrapper">
-                            <div
-                            className="progress-bar-large"
-                            style={{
-                                width: `${getProgress(projectProgress)}%`,
-                                backgroundColor: getBarColor(projectProgress), // I’ll explain below
-                            }}
-                            title={`${getProgress(projectProgress)}% Complete`}
-                            ></div>
+                    {role != 'employee' && (
+                    <div className="project-progress-section">
+                            <h2>Overall Project Progress</h2>
+                            <div className="progress-wrapper">
+                                <div
+                                className="progress-bar-large"
+                                style={{
+                                    width: `${getProgress(projectProgress)}%`,
+                                    backgroundColor: getBarColor(projectProgress), // I’ll explain below
+                                }}
+                                title={`${getProgress(projectProgress).toFixed(2)}% Complete`}
+                                ></div>
+                            </div>
+                            <p className="progress-label">
+                                {getProgress(projectProgress).toFixed(2)}% Complete
+                            </p>
                         </div>
-                        <p className="progress-label">
-                            {getProgress(projectProgress)}% Complete
-                        </p>
-                    </div>
-
+                    )}
                     </>
                 ) : (
-                    <p className="no-tasks-msg">No tasks for this project yet!</p>
+                    <p className="no-tasks-msg">No tasks assigned for you yet!</p>
                 )}
                 </div>
             </div>

@@ -21,7 +21,7 @@ db.Department = require("./Department")(sequelize, DataTypes);
 db.Project = require("./Project")(sequelize, DataTypes);
 db.User = require("./User")(sequelize, DataTypes);
 db.Profile = require("./Profile")(sequelize, DataTypes);
-
+db.Task = require('./Task')(sequelize , DataTypes)
 // Run associations
 Object.values(db).forEach(model => {
   if (model.associate) model.associate(db);

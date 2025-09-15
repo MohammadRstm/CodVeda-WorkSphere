@@ -6,7 +6,6 @@ import {Profile} from './Pages/ProfilePage/Profile';
 import { Manage } from './Pages/ManagePage/Manage';
 import { Login } from './Pages/Login';
 import { SignUp } from './Pages/SignUp';
-import { Task } from './Pages/Task';
 import { Project } from './Pages/Project/Project';
 
 
@@ -21,7 +20,6 @@ function App() {
         <Route path = "/profile" element={<Profile />} />
         <Route path = "/manage" element={<Manage />} />
         <Route path ="/project" element ={<Project />} />
-        <Route path = "/task" element = {<Task />} />
       </Routes>
     </>
   )

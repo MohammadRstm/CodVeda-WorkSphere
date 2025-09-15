@@ -24,6 +24,8 @@ app.use("/projects", projectsRouter);
 const departmentsRouter = require("./routes/departments")(db);
 app.use("/departments", departmentsRouter);
 
+const tasksRouter = require('./routes/tasks')(db);
+app.use('/tasks' , tasksRouter);
 
 db.sequelize.authenticate()
   .then(() => {

@@ -130,7 +130,7 @@ export function Profile(){
                                 </div>
                                 <div className="info-content">
                                     <div className="info-item">
-                                        <span className="info-label">Name:</span>
+                                        <span className="info-label">Name</span>
                                         {isEditing ? (
                                             <input
                                                 type="text"
@@ -143,7 +143,7 @@ export function Profile(){
                                         )}
                                     </div>
                                     <div className="info-item">
-                                        <span className="info-label">Age:</span>
+                                        <span className="info-label">Age</span>
                                         {isEditing ? (
                                             <input
                                                 type="text"
@@ -156,15 +156,15 @@ export function Profile(){
                                         )}
                                     </div>
                                     <div className="info-item">
-                                        <span className="info-label">User Name:</span>
+                                        <span className="info-label">User Name</span>
                                         <span className="info-value">{user.username}</span>
                                     </div>
                                     <div className="info-item">
-                                        <span className="info-label">Role:</span>
+                                        <span className="info-label">Role</span>
                                         <span className="info-value">{user.role}</span>
                                     </div>
                                     <div className="info-item">
-                                        <span className="info-label">Department:</span>
+                                        <span className="info-label">Department</span>
                                         <span className="info-value">{user.dep_name}</span>
                                     </div>
                                 </div>
@@ -177,11 +177,11 @@ export function Profile(){
                                 </div>
                                 <div className="info-content">
                                     <div className="info-item">
-                                        <span className="info-label">Employee ID:</span>
+                                        <span className="info-label">Employee ID</span>
                                         <span className="info-value">{user.id}</span>
                                     </div>
                                     <div className="info-item">
-                                        <span className="info-label">Start Date:</span>
+                                        <span className="info-label">Start Date</span>
                                         <span className="info-value">{new Date(user.created_at).toLocaleDateString()}</span>
                                     </div>
                                 </div>
@@ -194,7 +194,7 @@ export function Profile(){
                                 </div>
                                 <div className="info-content">
                                     <div className="info-item">
-                                        <span className="info-label">Project :</span>
+                                        <span className="info-label">Project</span>
                                         <span className="info-value">{user.project_name}</span>
                                     </div>
                                 </div>

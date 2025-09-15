@@ -54,6 +54,76 @@ h1 {
 .users-table tr:hover {
   background-color: #444444;
 }
+/* Shared input + select styling */
+.users-table input[type="text"],
+.users-table input[type="date"],
+.users-table select {
+  display: inline-block;
+  width: 100%;
+  min-width: 150px;            /* keeps manager wide enough */
+  padding: 6px 10px;           /* balanced padding */
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #f0f0f0;
+  background-color: #2b2b2b;
+  border: 1px solid #555;
+  border-radius: 4px;
+  box-sizing: border-box;
+
+  /* ✅ ensures proper vertical alignment */
+  height: 38px;
+  line-height: normal;
+  vertical-align: middle;
+}
+
+/* 🔑 Date input fix (removes weird native alignment) */
+.users-table input[type="date"] {
+  padding: 0 10px;   
+  margin-top : 15px;          /* avoid cutoff text */
+  text-align: center;          /* centers the date value */
+}
+
+/* 🔑 Select fix (prevents cutoff text) */
+.users-table select {
+  line-height: 1.2;            /* prevents text clipping */
+  padding-right: 28px;         /* space for dropdown arrow */
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.41.59L6 5.17 10.59.59 12 2l-6 6-6-6z' fill='%23f0f0f0'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 0.8rem 0.5rem;
+}
+/* Save Changes button styling */
+.users-table .submit-edits-btn {
+  display: inline-block;
+  padding: 0px 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #28a745; /* nice green */
+  border: 1px solid #1e7e34;
+  border-radius: 4px;
+  cursor: pointer;
+
+  /* align vertically with inputs */
+  height: 38px;
+  line-height: 1.2;
+  text-align: center;
+  box-sizing: border-box;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.users-table .submit-edits-btn:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+}
+
+.users-table .submit-edits-btn:active {
+  background-color: #1e7e34;
+  transform: translateY(0);
+}
+
+
 
 /* ====== Progress Bar ====== */
 .progress-bar-container {
@@ -285,6 +355,287 @@ h1 {
   color: #0056b3;
   text-decoration: underline;
 }
+
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.form-card {
+  background: #2c2c2c;
+  border-radius: 12px;
+  padding: 30px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom : 30px;
+}
+
+.form-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: #a0a0a0;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #b0b0b0;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.form-button {
+  background: #007bff;
+  color: white;
+  font-weight: 500;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.form-button:hover {
+  background: #0056b3;
+}
+
+.task-form-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.task-form-card {
+  width: 100%;
+  max-width: 650px;
+  background: #fff;
+  border-radius: 15px;
+  padding: 25px 30px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.task-form-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.task-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.task-form-block {
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: #fafafa;
+}
+
+.task-form-subtitle {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: #444;
+}
+
+.task-form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.task-form-label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #444;
+}
+
+.task-form-input,
+.task-form-select,
+.task-form-textarea {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.task-form-input:focus,
+.task-form-select:focus,
+.task-form-textarea:focus {
+  border-color: #007bff;
+}
+
+.task-form-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.task-form-btn {
+  background: #007bff;
+  color: #fff;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.task-form-btn:hover {
+  background: #0056b3;
+}
+
+.task-form-btn.secondary {
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.task-form-btn.secondary:hover {
+  background: #e0e0e0;
+}
+
+.task-submit-btn {
+  background-color: #28a745;   /* green */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.task-submit-btn:hover {
+  background-color: #218838;   /* darker green on hover */
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.7); /* green glow */
+}
+
+/* Full-width light blue button */
+button.assign-btn {
+  display: block;             /* makes it take up the full line */
+  width: 100%;                /* full width */
+  background-color: #31b0ff;  /* light blue */
+  color: #fff;                /* white text */
+  border: none;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;   
+  margin-bottom : 30px;        /* space from above content */
+}
+
+/* Hover effect: darker + subtle glow */
+button.assign-btn:hover {
+  background-color: #00BFFF;  /* deep sky blue */
+  box-shadow: 0 0 12px rgba(135, 206, 250, 0.8);
+}
+
+/* Overlay behind the modal */
+.delete-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* The modal box */
+.delete-prompt {
+  background-color: #1e1e2f; /* match your page's dark theme */
+  color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  z-index: 1001;
+}
+
+.delete-prompt h3 {
+  margin-bottom: 1rem;
+}
+
+.delete-prompt p {
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.delete-prompt button {
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.delete-prompt button:first-of-type {
+  background-color: #e74c3c; /* confirm = red */
+  color: #fff;
+}
+
+.delete-prompt button:first-of-type:hover {
+  background-color: #c0392b;
+}
+
+.delete-prompt button:last-of-type {
+  background-color: #555; /* cancel = gray */
+  color: #fff;
+}
+
+.delete-prompt button:last-of-type:hover {
+  background-color: #333;
+}
+
+
+
 
 /* ====== Responsive ====== */
 @media (max-width: 768px) {
