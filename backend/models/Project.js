@@ -1,46 +1,16 @@
-module.exports = (sequelize, DataTypes) => {
-  const Project = sequelize.define(
-    "Project",
-    {
-      id: { 
-        type: DataTypes.INTEGER, 
-        autoIncrement: true, 
-        primaryKey: true 
-      },
-      dep_id: { 
-        type: DataTypes.INTEGER, 
-        allowNull: false,
-        references: {
-          model: "Departments",
-          key: "id",
-        },
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      },
-      name: { 
-        type: DataTypes.STRING(40), 
-        allowNull: false 
-      },
-    },
-    {
-      tableName: "Projects",
-      timestamps: false, 
-    }
-  );
+const mongoose = require("mongoose");
+const { Schema, model, Types } = mongoose;
 
-  Project.associate = (models) => {
-    Project.belongsTo(models.Department, { 
-      foreignKey: "dep_id", 
-      onDelete: "CASCADE", 
-      onUpdate: "CASCADE" 
-    });
-    Project.hasMany(models.User, { 
-      foreignKey: "project_id", 
-      onUpdate: "CASCADE", 
-      onDelete: "CASCADE" 
-    });
-  };
+const projectSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    start_date: { type: Date, default: Date.now },
+    deadline: { type: Date, required: true },
+    dep_id: { type: Types.ObjectId, ref: "Department", required: true },
+  },
+  {
+    collection: "Projects", 
+  }
+);
 
-  return Project;
-};
-
+module.exports = model("Project", projectSchema);

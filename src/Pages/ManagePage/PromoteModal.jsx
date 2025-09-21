@@ -3,6 +3,7 @@ export function PromoteModal ({promote , promoteUser , setPromoteUser}){
 const figureOutPromotion = (role) => {
     if (role === "manager") return <strong>Admin</strong>;
     if (role === "employee") return <strong>Manager</strong>;
+    console.log(promoteUser._id)
     return <strong>Already Admin</strong>;
   };
 
@@ -20,7 +21,7 @@ const figureOutPromotion = (role) => {
                 <button
                   id="btn-promote-confirm"
                   className="btn-promote"
-                  onClick={() => promote(promoteUser.id, promoteUser.role)}
+                  onClick={() => promote(promoteUser._id, promoteUser.role)}
                 >
                   Promote
                 </button>

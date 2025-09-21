@@ -1,71 +1,49 @@
-// routes/users.js
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth");
+const { getIO } = require("../socket"); // socket helper
+const express = require("express");
+const mongoose = require("mongoose");
 
 const SALT_ROUNDS = 12;
 const JWT_SECRET = process.env.JWT_SECRET || "dsffj329ufdksafiw";
 const JWT_EXPIRY = "2h";
 
-const express = require("express");
-const router = express.Router();
-
 module.exports = (db) => {
-  const { User, Department, Project, Profile } = db; 
+  const { User, Department, Project , Message} = db;
+  const router = express.Router();
 
+// REGISTER
 router.post("/register", async (req, res) => {
-  const defaultProjectId = 32;
-  const defaultRole = 'employee';
+  const defaultProjectId = new mongoose.Types.ObjectId("64cc441dd3a1d8d8c410bd32"); // demo project
+  const defaultRole = "employee";
 
   try {
-    const { name, age, username, password , department} = req.body.user;
-
-    if (!username || !password) {
+    const { name, age, username, password, department } = req.body.user;
+    if (!username || !password)
       return res.status(400).json({ message: "Username & password required" });
-    }
 
-    const existingUser = await User.findOne({ where: { username } });
-    if (existingUser) {
+    const existingUser = await User.findOne({ username });
+    if (existingUser)
       return res.status(409).json({ message: "Username already exists" });
-    }
 
     const hash = await bcrypt.hash(password, SALT_ROUNDS);
+    const dep_id = await Department.findOne({name : department});
+    if (!dep_id)
+      return res.status(400).json({message : 'Department not valid'});
 
-    const newUser = await User.create({
+    const newUser = new User({
       name,
       username,
       age,
-      role : defaultRole,
+      role: defaultRole,
       password: hash,
-      dep_id: department,
+      dep_id : dep_id.id,
       project_id: defaultProjectId,
     });
 
-    res.status(201).json({ userId: newUser.id });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// LOGIN
-router.post("/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    const user = await User.findOne({ where: { username } });
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
-
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ message: "Invalid credentials" });
-
-    const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRY }
-    );
-
-    res.status(200).json({ message: "Login successful", token });
+    await newUser.save();
+    res.status(201).json({ userId: newUser._id });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -73,60 +51,62 @@ router.post("/login", async (req, res) => {
 });
 
 
-// GET ALL USERS WITH INFO
-router.get("/allUsers/allInfo", async (req, res) => {
-  try {
-    const users = await User.findAll({
-  attributes: ["id", "name", "username", "role"], 
-  include: [
-    {
-      model: Department,
-      attributes: ["id", "name"], 
-    },
-    {
-      model: Project,
-      attributes: ["id", "name"], 
-    },
-  ],
-  order: [["name", "ASC"]],
-});
+  // LOGIN
+  router.post("/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      const user = await User.findOne({ username });
+      if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) return res.status(401).json({ message: "Invalid credentials" });
 
-    res.status(200).json(users);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// GET ALL EMPLOYEES
-router.get('/all/employees' , async (req , res) =>{
-  try{
-    const employees = await User.findAll({where : {role : 'employee'}});
-    res.status(200).json(employees);
-  }catch(err){
-    res.status(500).json({ message: err.message });
-  }
-})
-
-// GET SPECIFIC USER
-router.get("/user/:id", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return res.status(400).json({ message: "Invalid or missing ID" });
+      const token = jwt.sign({ id: user._id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+      res.status(200).json({ message: "Login successful", token });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err.message });
     }
+  });
 
-    const user = await User.findByPk(id, {
-      attributes: ["id", "name", "username", "age", "dep_id", "project_id", "role"],
-    });
+  // GET ALL USERS WITH INFO
+  router.get("/allUsers/allInfo", async (req, res) => {
+    try {
+      const users = await User.find({}, "name username role dep_id project_id")
+        .populate("dep_id", "name")
+        .populate("project_id", "name")
+        .sort({ name: 1 });
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+      res.status(200).json(users);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
 
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+  // GET ALL EMPLOYEES
+  router.get("/all/employees", async (req, res) => {
+    try {
+      const employees = await User.find({ role: "employee" });
+      res.status(200).json(employees);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  // GET SPECIFIC USER
+  router.get("/user/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ message: "Invalid or missing ID" });
+
+      const user = await User.findById(id, "name username age dep_id project_id role");
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      res.status(200).json(user);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 
 // PROMOTE USER
 router.put("/promote/:id/:role", auth, async (req, res) => {
@@ -135,77 +115,155 @@ router.put("/promote/:id/:role", auth, async (req, res) => {
       return res.status(401).json({ message: "User not authorized" });
     }
 
-    const userId = parseInt(req.params.id, 10);
+    const userId = req.params.id;
     const currentRole = req.params.role.toLowerCase();
     let newRole;
+
     if (currentRole === "employee") {
+      // ✅ Check if employee has unfinished tasks
+      const employee = await User.findById(userId, "tasks");
+      if (!employee) return res.status(404).json({ message: "User not found" });
+
+      const hasUnfinishedTasks = employee.tasks.some(
+        (t) => t.state !== "done"
+      );
+      if (hasUnfinishedTasks) {
+        return res.status(400).json({
+          message:
+            "This employee still has unfinished tasks and cannot be promoted.",
+        });
+      }
+
+      // ✅ Clear tasks since all are done
+      employee.tasks = [];
+      await employee.save();
+
       newRole = "manager";
     } else if (currentRole === "manager") {
       newRole = "admin";
     } else if (currentRole === "admin") {
-      return res.status(400).json({ message: "Admin cannot be promoted further" });
+      return res
+        .status(400)
+        .json({ message: "Admin cannot be promoted further" });
     } else {
       return res.status(400).json({ message: "Invalid role" });
     }
 
-    const [updated] = await User.update({ role: newRole }, { where: { id: userId } });
-    if (!updated) return res.status(404).json({ message: "User not found" });
+    const updated = await User.updateOne(
+      { _id: userId },
+      { role: newRole }
+    );
 
-    res.status(200).json({ message: `User promoted to ${newRole} successfully` });
+    if (updated.modifiedCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "User not found or already promoted" });
+    }
+
+    // 🔔 Send promotion notification via socket
+    getIO().to(userId.toString()).emit("notification", {
+      message: `You have been promoted to a ${newRole}`,
+      userId,
+      type: "Promotion",
+    });
+
+    res
+      .status(200)
+      .json({ message: `User promoted to ${newRole} successfully` });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
 
-// DELETE USER
-router.delete("/delete/:id", auth, async (req, res) => {
-  try {
-    if (req.user.role !== "admin") {
-      return res.status(401).json({ message: "User not authorized" });
+  // DELETE USER
+  router.delete("/delete/:id", auth, async (req, res) => {
+    try {
+      if (req.user.role !== "admin") return res.status(401).json({ message: "User not authorized" });
+
+      const deleted = await User.deleteOne({ _id: req.params.id });
+      if (deleted.deletedCount === 0) return res.status(404).json({ message: "User not found" });
+
+      res.status(200).json({ message: "User deleted successfully" });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
+  });
 
-    const deleted = await User.destroy({ where: { id: req.params.id } });
-    if (!deleted) return res.status(404).json({ message: "User not found" });
+  // GET EXTENDED USER INFO
+  router.get("/user/extended/:id", async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id)
+        .populate("dep_id", "name")
+        .populate("project_id", "name");
 
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+      if (!user) return res.status(404).json({ message: "User not found" });
+      res.status(200).json(user);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 
-// GET EXTENDED USER INFO
-router.get("/user/extended/:id", async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id, {
-      include: [
-        { model: Department, attributes: ["name"] },
-        { model: Project, attributes: ["name"] },
-        { model: Profile, attributes: ["photo_url", "bio"] },
-      ],
-    });
+  // GET ALL MANAGERS
+  router.get("/managers", async (req, res) => {
+    try {
+      const managers = await User.find({ role: "manager" });
+      if (!managers || managers.length === 0)
+        return res.status(404).json({ message: "No managers in chosen department" });
 
-    if (!user) return res.status(404).json({ message: "User not found" });
-    console.log(user)
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+      res.status(200).json(managers);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
 
-// GET ALL MANAGERS
-router.get("/managers" , async (req , res) =>{
-  try{
-    const dep_id = req.params.depId;
-    const managers = await User.findAll({where : {role : "manager"}});
-    if (!managers)
-      res.status(404).json({message : 'No managers in chosen departent'});
-    res.status(200).json(managers);
-  }catch(err){
-    res.status(500).json({ error: err.message });
-  }
-});
+  // GET ALL MANAGERS AND EMPLOYEES WITH THEIR PROFILE PICS
+  router.get("/managers/employees/profiles/:id", async (req, res) => {
+    try {
+      const ownId = req.params.id;
+      const users = await User.find(
+        { _id: { $ne: ownId }, role: { $ne: "admin" } },
+        "name role _id profile"
+      );
+      res.status(200).json(
+        users.map((u) => ({
+          photo_url: u.profile?.photo_url || "",
+          name: u.name,
+          role: u.role,
+          id: u._id,
+        }))
+      );
+    } catch (err) {
+      console.log(err.message);
+      res.status(500).json({ message: err.message });
+    }
+  });
 
+  // FOR MESSAGE SENDING AND RECEIVING
+  router.post("/messages/send/:recipient", auth, async(req, res) => {
+    const recipientId = req.params.recipient;
+    const {message} = req.body;
 
-return router;
-}
+    try{
+      // save message in db
+      const newMessage = new Message({
+        senderId : req.user.id,
+        receiverId : recipientId,
+        message,
+        sentAt : new Date()
+      });
+      await newMessage.save();
+      // send notification about new message to recipient
+      getIO().to(recipientId.toString()).emit("message", {
+        userId: req.user.id,
+        type: "message",
+        message,
+      });
+      res.status(200).json({ success: "true" });
+    }catch(err){
+      console.log(err.message);
+      res.status(500).json({message : 'Server error'});
+    }
+  });
+  return router;
+};

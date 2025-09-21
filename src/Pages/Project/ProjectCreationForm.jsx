@@ -2,8 +2,10 @@ import { useState  , useEffect} from "react";
 import axios from 'axios';
 import { CustomAlert } from "../../Components/CustomAlert";
 import { ProjectTaskCreationForm } from "./ProjectTaskCreationForm";
+import { useNavigate } from "react-router-dom";
 
 export function ProjectCreationForm({ departments, managers , employees}) {
+  const navigate = useNavigate();
   const [alert , setAlert] = useState(null);// for custom alert 
   const [step, setStep] = useState(1);// tracking which step of the form the user is in
   const [managerSameDep , setManagerSameDep] = useState(managers);// get managers in the project's department
@@ -27,6 +29,7 @@ export function ProjectCreationForm({ departments, managers , employees}) {
   // for min deadline date 
   const today = new Date().toISOString().split("T")[0];
   const BASE_URL = import.meta.env.VITE_API_URL;// import base url from env file
+  const user = JSON.parse(localStorage.getItem('user'));
 
 
 
@@ -71,7 +74,15 @@ export function ProjectCreationForm({ departments, managers , employees}) {
       getSameDepManagers();// get managers for drop down list
     } else if (step === 2) {// submit form or add tasks
         if (!managerId){// only submit if an admin is in the page
-          setProject(await submitForm());// submit function returns the project created from the db
+          const newProject = await submitForm();
+          if (!newProject){
+            setTimeout(() => {
+              window.location.href = "/project"; 
+            }, 2000);
+          }
+          else
+          setProject(newProject);// submit function returns the project created from the db
+        
         }
         getUsersSameDep();// get employees for drop down list 
         setStep(3);
@@ -92,6 +103,9 @@ export function ProjectCreationForm({ departments, managers , employees}) {
             }
         });
         showAlert("Task(s) added successfully!" , 'success');
+        setInterval(() =>{
+          window.location.href = `/project?userId=${user.id}`;
+        } , 2000)
     }catch(err){
         if (err.response)
             showAlert (err.response.data.message || "Server failed , please try again" , 'error');
@@ -129,10 +143,11 @@ export function ProjectCreationForm({ departments, managers , employees}) {
      if (formData.department != ""){
         let sameDep = [];
         for (let i = 0 ; i < managers.length; i++){
-            if (managers[i].dep_id === parseInt(formData.department))
+            if (managers[i].dep_id === formData.department)
                 sameDep.push(managers[i])
         }
         setManagerSameDep(sameDep);
+        console.log(sameDep)
     }
   }
 
@@ -140,7 +155,7 @@ export function ProjectCreationForm({ departments, managers , employees}) {
     if (formData.department != ""){
       let sameDep = [];
       for (let i = 0; i < employees.length; i++){
-        if (employees[i].dep_id ===  parseInt(formData.department))
+        if (employees[i].dep_id === formData.department)
           sameDep.push(employees[i])
       }
       
@@ -215,7 +230,7 @@ export function ProjectCreationForm({ departments, managers , employees}) {
                 >
                   <option value="">Select department</option>
                   {departments.map((dep) => (
-                    <option key={dep.id} value={dep.id}>
+                    <option key={dep._id} value={dep._id}>
                       {dep.name}
                     </option>
                   ))}
@@ -240,7 +255,7 @@ export function ProjectCreationForm({ departments, managers , employees}) {
                   </>
                 ) : (
                 managerSameDep.map((mgr) => (
-                  <option key={mgr.id} value={mgr.id}>
+                  <option key={mgr._id} value={mgr._id}>
                     {mgr.name}
                   </option>
                 ))
@@ -248,7 +263,7 @@ export function ProjectCreationForm({ departments, managers , employees}) {
               </select>
             </div>
           )}
-          {step === 3 && (
+          {step === 3 && project &&(
             <ProjectTaskCreationForm
                 addAnotherTask={addAnotherTask}
                 handleTasksChange={handleTasksChange}

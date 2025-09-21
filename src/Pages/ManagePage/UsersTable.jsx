@@ -9,22 +9,35 @@ export function UsersTable({ role, title, users, visibleRows, setVisibleRows, se
       <>
         {sliced.map((user) => (
           <tr
-            key={user.id}
-            data-id={user.id}
+            key={user._id}
+            data-id={user._id}
             onContextMenu={(e) => {
               e.preventDefault();
-              setSelectedUserId(user.id);
-              const container = document.querySelector(".page-container");
-              const rect = container.getBoundingClientRect();
+              setSelectedUserId(user._id);
+              // const container = document.querySelector(".page-container");
+              // const rect = container.getBoundingClientRect();
               const menu = document.getElementById("context-menu");
+              const menuWidth = menu.offsetWidth;
+              const menuHeight = menu.offsetHeight;
+              const winWidth = window.innerWidth;
+              const winHeight = window.innerHeight;
+
+              let posX = e.clientX;
+              let posY = e.clientY;
+
+              if (posX + menuWidth > winWidth) {
+                posX = winWidth - menuWidth - 10; // padding from edge
+              }
+              if (posY + menuHeight > winHeight) {
+                posY = winHeight - menuHeight - 10;
+              }
               if (menu) {
-                menu.style.top = `${e.clientY - rect.top}px`;
-                menu.style.left = `${e.clientX - rect.left}px`;
+                menu.style.top = `${posY}px`;
+                menu.style.left = `${posX}px`;
                 menu.classList.remove("hidden");
               }
             }}
           >
-            <td>{user.id}</td>
             <td>{user.name}</td>
             <td>{user.username}</td>
             <td>
@@ -32,12 +45,12 @@ export function UsersTable({ role, title, users, visibleRows, setVisibleRows, se
                 {user.role}
               </span>
             </td>
-            <td>{user.Department?.name || ""}</td>
-            <td>{user.Project?.name || ""}</td>
+            <td>{user.dep_id?.name || ""}</td>
+            <td>{user.project_id?.name || ""}</td>
             <td>
               <button
                 className="btn-promote-row"
-                data-id={user.id}
+                data-id={user._id}
                 onClick={() => setPromoteUser(user)}
               >
                 Promote
@@ -46,7 +59,7 @@ export function UsersTable({ role, title, users, visibleRows, setVisibleRows, se
             <td>
               <button
                 className="btn-delete-row"
-                data-id={user.id}
+                data-id={user._id}
                 onClick={() => setDeleteUser(user)}
               >
                 Fire
@@ -98,7 +111,6 @@ export function UsersTable({ role, title, users, visibleRows, setVisibleRows, se
       <table className="users-table">
         <thead>
           <tr>
-            <th scope="col">Id</th>
             <th scope="col">Name</th>
             <th scope="col">User Name</th>
             <th scope="col">Role</th>

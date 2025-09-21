@@ -67,7 +67,7 @@ export function Project() {
 
             const data = res.data;
             setProjects(data);
-
+            console.log(data)
             const grouped = {};
             await Promise.all(
                 data.map(async (proj) => {
@@ -77,7 +77,7 @@ export function Project() {
                     grouped[dep].push({
                         id: proj.projId,
                         name: proj.projName,
-                        manager: proj.name,
+                        manager: proj.managerName,
                         startDate: proj.start_date,
                         deadline: proj.deadline,
                         completionPercent,
@@ -192,7 +192,7 @@ export function Project() {
 
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
-        const nature = queryParams.get('nature'); // nature is for the admin's action bar (create / update / delete)
+        const nature = queryParams.get('nature'); // nature is for the admin's action bar (create)
         const projectId = queryParams.get('projectId'); // for admins when they want to view a specific project
         const userId = queryParams.get('userId'); // for employees and managers
 
@@ -224,7 +224,7 @@ export function Project() {
                     });
                     const data = res.data;
                     setProjects(data);
-
+                    
                     const grouped = {};
                     await Promise.all(
                         data.map(async (proj) => {
@@ -234,7 +234,7 @@ export function Project() {
                             grouped[dep].push({
                                 id: proj.projId,
                                 name: proj.projName,
-                                manager: proj.name,
+                                manager: proj.managerName,
                                 startDate: proj.start_date,
                                 deadline: proj.deadline,
                                 completionPercent,
@@ -277,6 +277,7 @@ export function Project() {
                     });
                     const data = response.data;
                     setProjectDetails(data);
+                    console.log(data)
                 } catch (err) {
                     if (err.response)
                         showAlert(err.response.data.message || 'Server error, please try again');
@@ -322,12 +323,12 @@ export function Project() {
     };
 
     const removeTask = (tasks, taskId) => {
-        return tasks.filter(task => task.id !== taskId);
+        return tasks.filter(task => task._id !== taskId);
     };
 
-    const submitTask = async (taskId) => {
+    const submitTask = async (taskId , managerId , projectId) => {
         try {
-            await axios.put(`${BASE_URL}/tasks/update`, { taskId }, {
+            await axios.put(`${BASE_URL}/tasks/update`, { taskId  , managerId , projectId}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

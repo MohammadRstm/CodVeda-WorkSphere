@@ -28,18 +28,25 @@ export function Profile(){
     const loadUser = async (id) =>{
         try{
             let response = await axios.get(`${BASE_URL}/users/user/extended/${id}`);
+            const defaultImage = "https://www.w3schools.com/howto/img_avatar.png";
             if (response){
+                let photo_url =  "";
                 const data = response.data;
+                if (data.profile?.photo_url === defaultImage){
+                    photo_url = defaultImage;
+                }else{
+                    photo_url = data.profile?.photo_url ? `${BASE_URL}${data.profile.photo_url}` : ""
+                }
                 const userData = {
-                    id: data.id,
+                    id: data._id,
                     user_name: data.name,
                     username: data.username,
                     age: data.age,
                     role: data.role,
-                    dep_name: data.Department?.name || "",
-                    project_name: data.Project?.name || "",
-                    photo_url: data.Profile?.photo_url ? `${BASE_URL}${data.Profile.photo_url}` : "",
-                    bio: data.Profile?.bio || "",
+                    dep_name: data.dep_id?.name || "",
+                    project_name: data.project_id?.name || "",
+                    photo_url,
+                    bio: data.profile?.bio || "",
                     created_at: data.created_at
                 };
                 setUser(userData);

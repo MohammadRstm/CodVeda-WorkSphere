@@ -92,7 +92,7 @@ export function ProjectAdminTable({projectsByDept , getProgress , getBarColor , 
                                                 onChange={handleChange}
                                                 >
                                                    {managersSameDep.map((manager) => (
-                                                    <option key={manager.id} value={manager.id}>
+                                                    <option key={manager._id} value={manager._id}>
                                                         {manager.name}
                                                     </option>
                                                     ))}

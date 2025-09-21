@@ -1,28 +1,37 @@
-// models/User.js
-module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define("User", {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    dep_id: { type: DataTypes.INTEGER, allowNull: false },
-    project_id: { type: DataTypes.INTEGER, allowNull: false },
-    name: { type: DataTypes.STRING(30), allowNull: false },
-    username: { type: DataTypes.STRING(50), allowNull: false, unique: true },
-    age: { type: DataTypes.INTEGER, allowNull: false },
-    created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-    role: {
-      type: DataTypes.ENUM("employee", "manager", "admin"),
-      allowNull: false
-    },
-    password: { type: DataTypes.STRING, allowNull: false }
-  }, {
-    tableName: "Users",
-    timestamps: false
-  });   
+const mongoose = require("mongoose");
+const { Schema, model, Types } = mongoose;
 
-  User.associate = (models) => {
-    User.belongsTo(models.Department, { foreignKey: "dep_id" });
-    User.belongsTo(models.Project, { foreignKey: "project_id" });
-    User.hasOne(models.Profile, { foreignKey: "user_id", onDelete: "CASCADE", onUpdate: "CASCADE" });
-  };
+const taskSchema = new Schema({
+  name: { type: String, required: true },
+  description: { type: String, default: "" },
+  days_to_finish: { type: Number, default: 0 },
+  state: { type: String, default: "In Progress" },
+});
 
-  return User;
-};
+const profileSchema = new Schema(
+  {
+    bio: { type: String, default: "Hello World!" },
+    photo_url: { type: String, default: "https://www.w3schools.com/howto/img_avatar.png" },
+  },
+  { _id: false } 
+);
+
+const userSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    age: { type: Number, default: null },
+    dep_id: { type: Types.ObjectId, ref: "Department" }, 
+    project_id: { type: Types.ObjectId, ref: "Project" },
+    role: { type: String, enum: ["employee", "manager", "admin"], default: "employee" },
+    created_at: { type: Date, default: Date.now },
+    profile: { type: profileSchema, default: () => ({}) },
+    tasks: { type: [taskSchema], default: [] },  
+  },
+  {
+    collection: "Users", 
+  }
+);
+
+module.exports = model("User", userSchema);

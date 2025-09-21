@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { CustomAlert } from '../Components/CustomAlert';
 import {jwtDecode} from "jwt-decode";
-
+import { connectSocket  , initSocket , disconnectSocket} from '../../socketClient';
 export function Login() {
   const navigate = useNavigate();
 
@@ -12,8 +12,7 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [alert, setAlert] = useState(null); // Alert state
 
-  const queryParams = new URLSearchParams(window.location.search);
-  const logOut = queryParams.get('logout');
+  const BASE_URL = import.meta.env.VITE_API_URL;
 
   const showAlert = (msg, type = "error") => {
     setAlert({ msg, type });
@@ -22,26 +21,37 @@ export function Login() {
   const submithtmlForm = async (e) => {
     e.preventDefault();
     try {
-      const results = await axios.post('http://localhost:3000/users/login', {
+      const results = await axios.post(`${BASE_URL}/users/login`, {
         username,
         password
       });
-
+    
       const token = results.data.token;
       const payload = jwtDecode(token);
-      console.log(payload)
       const role = payload.role;
       const id = payload.id;
       const userName = payload.username;
 
-      if (logOut) localStorage.clear();
+      const queryParams = new URLSearchParams(window.location.search);
+      const logOut = queryParams.get('logout');
+      if (logOut){
+        localStorage.clear();
+        disconnectSocket();
+        console.log('socket disconnected');
+      }
+        
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify({ id, role , userName }));
 
-      showAlert("Login successful!", "success"); // Show success alert
-      setTimeout(() => navigate("/Home"), 1000); // Navigate after 1s
-
+    showAlert("Login successful!", "success"); // Show success alert
+    // tell the server who logged in for websocket communication
+    if (id){
+      initSocket(import.meta.env.VITE_API_URL, id);
+      const socket = connectSocket(id);
+      socket.on("connect", () => console.log("Socket connected for user:", id));
+    }
+     setTimeout(() => navigate("/Home"), 1000);
     } catch (err) {
       if (err.response) showAlert(err.response.data.message || "Server error, please try again");
       else showAlert("Something went wrong");

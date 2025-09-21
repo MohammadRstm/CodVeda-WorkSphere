@@ -22,6 +22,7 @@ export function Manage() {
 
   // Alerts
   const [alert, setAlert] = useState(null);
+  const BASE_URL = import.meta.env.VITE_API_URL;// import base url from env file
 
   // Table visibility
   const [visibleRows, setVisibleRows] = useState({
@@ -37,7 +38,6 @@ export function Manage() {
     { role: 'employee', title: 'Employees' },
   ];
 
-  const BASE_URL = import.meta.env.VITE_API_URL;// import base url from env file
 
   // Hide context menu on click
   useEffect(() => {
@@ -98,7 +98,7 @@ export function Manage() {
   const fireUser = async () => {
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(`${BASE_URL}/users/delete/${deleteUser.id}`, {
+      await axios.delete(`${BASE_URL}/users/delete/${deleteUser._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       await loadUsers();
@@ -118,7 +118,7 @@ export function Manage() {
       const foundUser = users.find(
         (u) => u.username.toLowerCase() === query.toLowerCase()
       );
-      if (foundUser) navigate(`/profile?id=${foundUser.id}`);
+      if (foundUser) navigate(`/profile?id=${foundUser._id}`);
       else showAlert("User not found!", "error");
     }
   };
@@ -142,7 +142,7 @@ export function Manage() {
           <div className="glowing-orbs orb-3" />
           <div className="glowing-orbs orb-4" />
 
-          <h1>Welcome {user?.name}</h1>
+          <h1>Welcome {user?.userName}</h1>
           <h3>List of users</h3>
 
           <div className="toolbar">

@@ -3,7 +3,7 @@ export function DeleteModal ({fireUser , deleteUser , setDeleteUser}){
           <div id="modal-confirm" className="modal">
             <div className="modal-content">
               <p>
-                Are you sure you want to fire <strong>{deleteUser.user_name}</strong>?
+                Are you sure you want to fire <strong>{deleteUser.username}</strong>?
               </p>
               <div className="modal-buttons">
                 <button

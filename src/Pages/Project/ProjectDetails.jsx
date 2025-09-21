@@ -1,7 +1,6 @@
 export function ProjectDetails({projectDetails , getBarColor , getProgress ,projectProgress , role , submitTask
     , userId , assignTask , username 
 }){
-
     return (
      <div className="page-container project-details-container">
                 <h1>Project Details</h1>
@@ -32,8 +31,12 @@ export function ProjectDetails({projectDetails , getBarColor , getProgress ,proj
                         <th>Task Name</th>
                         <th>Description</th>
                         <th>Days to Finish</th>
-                        <th>Assigned To</th>
-                        <th>Username</th>
+                        {role === 'manager' && (
+                            <>
+                                <th>Assigned To</th>
+                                <th>Username</th>
+                            </>
+                        )}
                         <th>State</th>
                         {role === 'employee' ? <><th>Submit Task</th></> : <></>}
                         </tr>
@@ -41,16 +44,20 @@ export function ProjectDetails({projectDetails , getBarColor , getProgress ,proj
                     <tbody>
                         {projectDetails.tasks.map((task, index) => (
                         <tr key={index}>
-                            <td>{task.id}</td>
-                            <td>{task.taskName}</td>
+                            <td>{task._id}</td>
+                            <td>{task.name}</td>
                             <td>{task.description || "N/A"}</td>
                             <td>{task.days_to_finish}</td>
-                            <td>{task.assignedTo}</td>
-                            <td>{task.username}</td>
+                            {role === 'manager' && (
+                                <>
+                                    <td>{task.assigned_name}</td>
+                                    <td>{task.assigned_to}</td>
+                                </>
+                            )}
                             <td>{task.state}</td>
                             {role === 'employee' ? <><td>
                                 <button
-                                onClick={() => submitTask(task.id)}
+                                onClick={() => submitTask(task._id , projectDetails.managerId , projectDetails.id)}
                                 className="task-submit-btn"
                                 >Submit
                                 </button>

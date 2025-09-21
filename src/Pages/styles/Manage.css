@@ -427,7 +427,7 @@ h3 {
 
 /* ====== Context menu (single definition) ====== */
 #context-menu {
-  position: absolute;
+  position: fixed;
   background-color: var(--surface);
   border: 1px solid #333;
   border-radius: 0.5rem;

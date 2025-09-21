@@ -1,6 +1,5 @@
 export function ProjectTaskCreationForm({project , handleSubmit , tasks ,removePrevoiusTask , handleTasksChange , addAnotherTask , employeesSameDep}) {
   const user = JSON.parse(localStorage.getItem('user'));
-  console.log(project)
   return (
     <div className="task-form-wrapper">
       <div className="task-form-card">
@@ -51,7 +50,7 @@ export function ProjectTaskCreationForm({project , handleSubmit , tasks ,removeP
                       Manager&apos;s Project
                     </option>
                   ) : (
-                      <option key={project.id} value={project.id}>
+                      <option key={project._id} value={project._id}>
                       {project.name}
                     </option>
                   )}
