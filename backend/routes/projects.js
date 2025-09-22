@@ -178,7 +178,6 @@ module.exports = () => {
   });
 
   // ADD A NEW PROJECT
-  // ADD A NEW PROJECT
   router.post("/addProject", auth, async (req, res) => {
     try {
       const { name, deadline, department, manager } = req.body.formData;
@@ -225,6 +224,10 @@ module.exports = () => {
       const user = await User.findById(userId).populate("project_id dep_id");
       if (!user) return res.status(404).json({ message: "User not found" });
 
+    if (!user.project_id) {
+      return res.status(200).json({ message: "No project assigned yet!" });
+    }
+
       let tasks;
       if (role === "employee") {
         tasks = user.tasks.filter((t) => t.state === "in Progress");
@@ -247,7 +250,7 @@ module.exports = () => {
       let managerName, managerId;
       
         const manager = await User.findOne({ project_id: user.project_id._id, role: "manager" });
-        if (!manager) return res.status(404).json({ message: "Manager not found" });
+        if (!manager) return res.status(404).json({ message: "Project not found" });
         managerName = manager.name;
         managerId = manager._id;
       

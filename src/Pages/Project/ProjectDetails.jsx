@@ -1,8 +1,10 @@
 export function ProjectDetails({projectDetails , getBarColor , getProgress ,projectProgress , role , submitTask
-    , userId , assignTask , username 
+    , userId , assignTask , username , submitProject
 }){
     return (
      <div className="page-container project-details-container">
+        {projectDetails ? (
+            <>
                 <h1>Project Details</h1>
                 <div className="project-info">
                 <div className="info-item"><span>Project:</span> {projectDetails.projectName}</div>
@@ -13,28 +15,37 @@ export function ProjectDetails({projectDetails , getBarColor , getProgress ,proj
             </div>
 
                 <div className="tasks-section">
+                {role === 'manager' &&
+                 (  <button
+                        className="submit-project-btn"
+                        onClick={() => submitProject()}
+                        >
+                            Submit Project
+                    </button>
+                    )
+                }
                 <h2>Tasks</h2>
                  {role === 'manager' && (
+                    <>
                         <button
                         className="assign-btn"
                         onClick={() => assignTask(userId , projectDetails.id , username , projectDetails.dep_id)}
                         >
                             Assign new tasks
                         </button>
+                    </>
                     )}
                 {projectDetails.tasks && projectDetails.tasks.length > 0 ? (
                     <>
                     <table className="users-table">
                     <thead>
                         <tr>
-                        <th>ID</th>
                         <th>Task Name</th>
                         <th>Description</th>
                         <th>Days to Finish</th>
                         {role === 'manager' && (
                             <>
                                 <th>Assigned To</th>
-                                <th>Username</th>
                             </>
                         )}
                         <th>State</th>
@@ -44,13 +55,11 @@ export function ProjectDetails({projectDetails , getBarColor , getProgress ,proj
                     <tbody>
                         {projectDetails.tasks.map((task, index) => (
                         <tr key={index}>
-                            <td>{task._id}</td>
                             <td>{task.name}</td>
                             <td>{task.description || "N/A"}</td>
                             <td>{task.days_to_finish}</td>
                             {role === 'manager' && (
                                 <>
-                                    <td>{task.assigned_name}</td>
                                     <td>{task.assigned_to}</td>
                                 </>
                             )}
@@ -89,6 +98,10 @@ export function ProjectDetails({projectDetails , getBarColor , getProgress ,proj
                     <p className="no-tasks-msg">No tasks assigned for you yet!</p>
                 )}
                 </div>
+            </>
+        ) : (
+            <h3>You have not been assigned a project yet!</h3>
+        )}
             </div>
 
             )

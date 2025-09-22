@@ -239,6 +239,20 @@ router.put("/promote/:id/:role", auth, async (req, res) => {
     }
   });
 
+  // SUBMITTING THE PROJECT OF THE MANAGER
+  router.put('/submitProject/:managerId/:projectId' , auth ,async (req , res) =>{
+    try{
+      const {managerId , projectId} = req.params;
+      // set manager's and employee's project_id to null as its done
+      await User.updateMany({project_id : projectId} , {$set : {project_id : null}});
+
+      res.status(200).json({message : 'Project submitted successfully'});
+    }catch(err){
+      res.status(500).json({message : err.message});
+      console.log(err.message);
+    }
+  })
+
   // FOR MESSAGE SENDING AND RECEIVING
   router.post("/messages/send/:recipient", auth, async(req, res) => {
     const recipientId = req.params.recipient;

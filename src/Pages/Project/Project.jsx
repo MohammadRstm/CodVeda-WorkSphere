@@ -13,6 +13,7 @@ export function Project() {
     const [alert, setAlert] = useState(null); // for custom alert 
     const [projectsByDept, setProjectsByDept] = useState({}); // for project' data
     const [projectDetails, setProjectDetails] = useState(null); // details of a single project
+    const [showForAdmin , setShowForAdmin] = useState(true);// show admin's page by default
     const [selectedProject, setSelectedProject] = useState(null); // selected project for a detailed review
     const [projectProgress, setProjectProgress] = useState(0); // progress detail
     const [projectForm, setProjectForm] = useState(""); // create project form 
@@ -270,14 +271,18 @@ export function Project() {
         };
 
         if (userId) { // show page for managers and employees (project details straight away)
+            setShowForAdmin(false);
             const getProjectForUser = async () => {
                 try {
                     const response = await axios.get(`${BASE_URL}/projects/details/user/${userId}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
+                     if (response.data.message === "No project assigned yet!") {
+                        // just return silently, no alert
+                        return;
+                    }
                     const data = response.data;
                     setProjectDetails(data);
-                    console.log(data)
                 } catch (err) {
                     if (err.response)
                         showAlert(err.response.data.message || 'Server error, please try again');
@@ -287,6 +292,7 @@ export function Project() {
             };
             getProjectForUser();
         } else { // show normal page for admins
+            setShowForAdmin(true);
             fetchProjects();
         }
 
@@ -321,6 +327,27 @@ export function Project() {
     const assignTask = (managerId, projId, username, depId) => {
         window.location.href = `/project?nature=create&managerid=${managerId}&project_id=${projId}&username=${username}&depid=${depId}`;
     };
+
+    const submitProject = async () =>{
+        const managerId = userId;// get current manager
+        try{
+           const hasIncomplete = projectDetails.tasks.some((task) => task.state !== 'done');
+            if (hasIncomplete) {
+                return showAlert('Some task(s) are not done!', 'error');
+            }
+            await axios.put(`${BASE_URL}/users/submitProject/${managerId}/${projectDetails.id}`, {} , {
+                headers : {
+                    Authorization:`Bearer ${token}` 
+                }
+            });
+            showAlert('Project submitted successfuly' , 'success');
+        }catch(err){
+            if (err.response)
+                showAlert(err.response.data.message || 'Server error, please try again');
+            else
+                showAlert('Network error, please try again later');
+        }
+    }
 
     const removeTask = (tasks, taskId) => {
         return tasks.filter(task => task._id !== taskId);
@@ -407,7 +434,7 @@ export function Project() {
             ) : (
                 <>
                     {/* FOR ADMINS ONLY */}
-                    {!projectDetails && (
+                    {showForAdmin && (
                         <>
                             <div className="admin-actions-container">
                                 <h2>Project Management</h2>
@@ -432,7 +459,7 @@ export function Project() {
                     )}
 
                     {/* FOR MANAGERS AND EMPLOYEES (ADMINS CAN ACCESS THROUGH CONTEXT MENU) */}
-                    {projectDetails && (
+                    {!showForAdmin && (
                         <ProjectDetails
                             projectDetails={projectDetails}
                             projectProgress={projectProgress}
@@ -443,6 +470,7 @@ export function Project() {
                             username={username}
                             assignTask={assignTask}
                             userId={userId}
+                            submitProject={submitProject}
                         />
                     )}
 

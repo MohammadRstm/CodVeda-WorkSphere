@@ -549,7 +549,7 @@ h1 {
 }
 
 /* Full-width light blue button */
-button.assign-btn {
+button.assign-btn  , button.submit-project-btn{
   display: block;             /* makes it take up the full line */
   width: 100%;                /* full width */
   background-color: #31b0ff;  /* light blue */
@@ -563,12 +563,19 @@ button.assign-btn {
   margin-top: 20px;   
   margin-bottom : 30px;        /* space from above content */
 }
+ button.submit-project-btn{
+  background-color: rgb(30, 94, 30);
+ }
 
 /* Hover effect: darker + subtle glow */
-button.assign-btn:hover {
+button.assign-btn:hover{
   background-color: #00BFFF;  /* deep sky blue */
   box-shadow: 0 0 12px rgba(135, 206, 250, 0.8);
 }
+ button.submit-project-btn:hover{
+  background-color: #1f5e2d;
+  box-shadow: 0 0 12px #2cae48;
+ }
 
 /* Overlay behind the modal */
 .delete-prompt-overlay {
