@@ -7,6 +7,7 @@ import { UsersTable } from "./UsersTable";
 import { DeleteModal } from "./DeleteModal";
 import { PromoteModal } from "./PromoteModal";
 import { CustomAlert } from "../../Components/CustomAlert";
+import { DemoteModal } from "./DemoteModal.jsx"
 
 export function Manage() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export function Manage() {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [promoteUser, setPromoteUser] = useState(null);
   const [deleteUser, setDeleteUser] = useState(null);
+  const [demoteUser , setDemoteUser] = useState(null);
 
   // Alerts
   const [alert, setAlert] = useState(null);
@@ -95,6 +97,24 @@ export function Manage() {
     }
   };
 
+  const demote = async (id , role ) =>{
+    const token = localStorage.getItem("token");
+    try {
+      await axios.put(
+        `${BASE_URL}/users/demote/${id}/${role}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await loadUsers();
+      setDemoteUser(null);
+      showAlert("User demoted successfully!", "success");
+    } catch (err) {
+      if (err.response) showAlert(err.response.data.message || "Something went wrong", "error");
+      else showAlert("Network error, please try again later", "error");
+      setDemoteUser(null);
+    }
+  }
+
   const fireUser = async () => {
     const token = localStorage.getItem("token");
     try {
@@ -167,6 +187,7 @@ export function Manage() {
               setSelectedUserId={setSelectedUserId}
               setPromoteUser={setPromoteUser}
               setDeleteUser={setDeleteUser}
+              setDemoteUser = {setDemoteUser}
             />
           ))}
         </div>
@@ -184,6 +205,14 @@ export function Manage() {
             promote={promote}
             promoteUser={promoteUser}
             setPromoteUser={setPromoteUser}
+          />
+        )}
+
+        {demoteUser && (
+          <DemoteModal
+            demote={demote}
+            demoteUser={demoteUser}
+            setDemoteUser={setDemoteUser}
           />
         )}
 

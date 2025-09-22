@@ -1,4 +1,4 @@
-export function UsersTable({ role, title, users, visibleRows, setVisibleRows, setSelectedUserId, setPromoteUser, setDeleteUser }) {
+export function UsersTable({ role, title, users, visibleRows, setVisibleRows, setSelectedUserId, setPromoteUser, setDeleteUser , setDemoteUser}) {
 
   const populateTable = (userRole) => {
     const filtered = users.filter((user) => user.role === userRole);
@@ -54,6 +54,15 @@ export function UsersTable({ role, title, users, visibleRows, setVisibleRows, se
                 onClick={() => setPromoteUser(user)}
               >
                 Promote
+              </button>
+            </td>
+            <td>
+              <button
+              className='btn-demote-row'
+              data-id={user._id}
+              onClick = {() => setDemoteUser(user)}
+              >
+                Demote
               </button>
             </td>
             <td>
@@ -117,6 +126,7 @@ export function UsersTable({ role, title, users, visibleRows, setVisibleRows, se
             <th scope="col">Dept. Name</th>
             <th scope="col">Project</th>
             <th scope="col">Promote</th>
+            <th scope="col">Demote</th>
             <th scope="col">Fire</th>
           </tr>
         </thead>

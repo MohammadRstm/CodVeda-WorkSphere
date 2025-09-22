@@ -210,12 +210,16 @@ h3 {
 
 /* Action buttons */
 .btn-promote-row,
-.btn-promote {
+.btn-promote,.btn-demote-row,.btn-demote{
   background-color: var(--brand);
 }
 
-.btn-promote-row:hover,
-.btn-promote:hover {
+.btn-demote-row{
+  background-color: rgb(252, 162, 67);
+}
+
+.btn-promote-row:hover,.btn-demote-row:hover
+.btn-promote:hover,.btn-demote:hover {
   filter: brightness(1.15);
   transform: translateY(-1px);
 }

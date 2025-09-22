@@ -30,8 +30,8 @@ whats next?
 logic fixes : 
 -- Allow managers to submit project (set project_id to null in db for them when done) - done
 -- Don't allow promotion to manager unless all tasks are submited and reset the task array in db to null - done
--- Don't allow promotion to admin unless the manager's project is submitted reset project_id to null in db
--- Allow for demotion
+-- Don't allow promotion to admin unless the manager's project is submitted reset project_id to null in db - done
+-- Allow for demotion - done
 -- profile page looks ass - looks fine now - done
 -- Allow managers to be assigned a project when they have one already only when that project is the demo one - done
 */
@@ -58,9 +58,7 @@ Phase 2 :
 --- create a messages collection in the db to save messages - done 
 --- only load the messages that belong to the current chat opened - done
 --- display the number of messages received from different chats near the chat box
-----Bugs : - on page reload the chat box disappears
-          
-
+----Bugs : - on page reload the socket gets disconnected so we need to intialize it again
 */
 
 function App() {

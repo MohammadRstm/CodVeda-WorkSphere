@@ -120,7 +120,7 @@ router.put("/promote/:id/:role", auth, async (req, res) => {
     let newRole;
 
     if (currentRole === "employee") {
-      // ✅ Check if employee has unfinished tasks
+      // Check if employee has unfinished tasks
       const employee = await User.findById(userId, "tasks");
       if (!employee) return res.status(404).json({ message: "User not found" });
 
@@ -134,12 +134,20 @@ router.put("/promote/:id/:role", auth, async (req, res) => {
         });
       }
 
-      // ✅ Clear tasks since all are done
+      // Clear tasks since all are done
       employee.tasks = [];
       await employee.save();
 
       newRole = "manager";
     } else if (currentRole === "manager") {
+      const manager = await User.findById(userId , "project_id");
+      if (!manager) return res.status(404).json({message :"User not found"});
+
+      const hasUNfinishedProject = manager.project_id ? true : false;
+      if (hasUNfinishedProject)
+        return res.status(400).json({message : 'Manager has an unfinished project!'});
+      // after submission project_id is set to null automatically so no need to set it here
+
       newRole = "admin";
     } else if (currentRole === "admin") {
       return res
@@ -150,7 +158,7 @@ router.put("/promote/:id/:role", auth, async (req, res) => {
     }
 
     const updated = await User.updateOne(
-      { _id: userId },
+      { _id: new mongoose.Types.ObjectId(userId) },
       { role: newRole }
     );
 
@@ -175,6 +183,55 @@ router.put("/promote/:id/:role", auth, async (req, res) => {
   }
 });
 
+router.put('/demote/:id/:role' , auth , async (req , res) =>{
+  const {id , role} = req.params;
+  if (!id || !role)
+    return res.status(400).json({message :'Bad http request'});
+  try{
+    const userRole = req.user.role;
+    if (userRole !== 'admin')
+      return res.status(403).json({message : 'User not authorized'});
+    let newRole = "";
+
+    if (role === 'admin'){
+      newRole = 'manager'
+    }else if (role === 'manager'){
+      const manager = await User.findById(id , "project_id");
+      if (!manager) return res.status(404).json({message :"User not found"});
+
+      const hasUNfinishedProject = manager.project_id ? true : false;
+      if (hasUNfinishedProject)
+        return res.status(400).json({message : 'Manager has an unfinished project!'});
+      newRole = 'employee';
+    }else if(role === 'employee'){
+      return res.status(400).json({message : 'Employees cannot be demoted furthure!'});
+    }else{
+      return res.status(400).json({message : 'Invalid role'});
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    const result = await User.updateOne(
+      { _id: new mongoose.Types.ObjectId(id) },
+      { role: newRole }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    getIO().to(id.toString()).emit("notification", {
+      message: `You have been demoted to a ${newRole}`,
+      id,
+      type: "Demotion",
+    });
+    res.status(200).json({message : 'User demoted successfully'});
+  }catch(err){
+    res.status(500).json({message : 'Server error'});
+    console.log(err.message);
+  }
+});
 
   // DELETE USER
   router.delete("/delete/:id", auth, async (req, res) => {
