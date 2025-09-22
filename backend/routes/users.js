@@ -182,7 +182,7 @@ router.put("/promote/:id/:role", auth, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
+// DMOTE USER
 router.put('/demote/:id/:role' , auth , async (req , res) =>{
   const {id , role} = req.params;
   if (!id || !role)
@@ -194,6 +194,10 @@ router.put('/demote/:id/:role' , auth , async (req , res) =>{
     let newRole = "";
 
     if (role === 'admin'){
+      const adminCount = await User.countDocuments({role : 'admin'});
+      if (adminCount === 1){
+        return res.status(400).json({message : 'You cannot demote the only admin'});
+      }
       newRole = 'manager'
     }else if (role === 'manager'){
       const manager = await User.findById(id , "project_id");
@@ -237,6 +241,13 @@ router.put('/demote/:id/:role' , auth , async (req , res) =>{
   router.delete("/delete/:id", auth, async (req, res) => {
     try {
       if (req.user.role !== "admin") return res.status(401).json({ message: "User not authorized" });
+
+      if (req.user.role === 'admin'){
+        const adminCount = await User.countDocuments({role : 'admin'});
+        if (adminCount === 1){
+          return res.status(400).json({message : 'You cannot fire the only admin'});
+        }
+      }
 
       const deleted = await User.deleteOne({ _id: req.params.id });
       if (deleted.deletedCount === 0) return res.status(404).json({ message: "User not found" });

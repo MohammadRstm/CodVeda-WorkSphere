@@ -45,8 +45,13 @@ export function UsersTable({ role, title, users, visibleRows, setVisibleRows, se
                 {user.role}
               </span>
             </td>
-            <td>{user.dep_id?.name || ""}</td>
-            <td>{user.project_id?.name || ""}</td>
+            {role !== 'admin' && (
+              <>
+              <td>{user.dep_id?.name || ""}</td>
+              <td>{user.project_id?.name || ""}</td>
+              </>
+            )}
+        
             <td>
               <button
                 className="btn-promote-row"
@@ -123,8 +128,12 @@ export function UsersTable({ role, title, users, visibleRows, setVisibleRows, se
             <th scope="col">Name</th>
             <th scope="col">User Name</th>
             <th scope="col">Role</th>
-            <th scope="col">Dept. Name</th>
-            <th scope="col">Project</th>
+            {role !== 'admin' && (
+              <>
+                <th scope="col">Dept. Name</th>
+                <th scope="col">Project</th>
+              </>
+            )}
             <th scope="col">Promote</th>
             <th scope="col">Demote</th>
             <th scope="col">Fire</th>
