@@ -36,11 +36,17 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
   app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-  // const graphqlUpload = await import('graphql-upload');
-  // const graphqlUploadExpress = graphqlUpload.graphqlUploadExpress;
 
-  // app.use('/graphql', graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 1 }));
+  const reactBuildPath = path.join(__dirname, '../build');
+  app.use(express.static(reactBuildPath));
 
+  app.get('*', (req, res) => {
+    // skip /graphql and /uploads routes
+    if (req.path.startsWith('/graphql') || req.path.startsWith('/uploads')) {
+      return;
+    }
+    res.sendFile(path.join(reactBuildPath, 'index.html'));
+  });
 
   // Apollo Server setup
   const apolloServer = new ApolloServer({
@@ -69,10 +75,7 @@ async function startServer() {
   // Connect MongoDB
   const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/codVedaLevel_3';
   try {
-    await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(mongoUri);
     console.log('✅ Connected to MongoDB!');
 
     server.listen(3000, () => {
