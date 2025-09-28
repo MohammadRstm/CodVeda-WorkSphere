@@ -37,7 +37,7 @@ async function startServer() {
   app.use(express.json());
   app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-  const reactBuildPath = path.join(__dirname, '../build');
+  const reactBuildPath = path.join(__dirname, '../dist');
   app.use(express.static(reactBuildPath));
 
   app.get('*', (req, res) => {
