@@ -1,4 +1,6 @@
-const mongoose = require("mongoose");
+// models/Project.js
+import mongoose from "mongoose";
+
 const { Schema, model, Types } = mongoose;
 
 const projectSchema = new Schema(
@@ -9,8 +11,8 @@ const projectSchema = new Schema(
     dep_id: { type: Types.ObjectId, ref: "Department", required: true },
   },
   {
-    collection: "Projects", 
+    collection: "Projects",
   }
 );
 
-module.exports = model("Project", projectSchema);
+export default model("Project", projectSchema);

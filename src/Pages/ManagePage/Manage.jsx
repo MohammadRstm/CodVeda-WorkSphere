@@ -1,30 +1,29 @@
 import "../styles/Manage.css";
 import { Header } from "../../Components/Header";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UsersTable } from "./UsersTable";
 import { DeleteModal } from "./DeleteModal";
 import { PromoteModal } from "./PromoteModal";
 import { CustomAlert } from "../../Components/CustomAlert";
-import { DemoteModal } from "./DemoteModal.jsx"
+import { DemoteModal } from "./DemoteModal.jsx";
 
 export function Manage() {
   const navigate = useNavigate();
 
   // Data
   const [users, setUsers] = useState([]);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem("user"));
 
   // UI state
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [promoteUser, setPromoteUser] = useState(null);
   const [deleteUser, setDeleteUser] = useState(null);
-  const [demoteUser , setDemoteUser] = useState(null);
+  const [demoteUser, setDemoteUser] = useState(null);
 
   // Alerts
   const [alert, setAlert] = useState(null);
-  const BASE_URL = import.meta.env.VITE_API_URL;// import base url from env file
+  const BASE_URL = import.meta.env.VITE_API_URL;
 
   // Table visibility
   const [visibleRows, setVisibleRows] = useState({
@@ -35,11 +34,10 @@ export function Manage() {
 
   // Roles
   const roles = [
-    { role: 'admin', title: 'Admins' },
-    { role: 'manager', title: 'Managers' },
-    { role: 'employee', title: 'Employees' },
+    { role: "admin", title: "Admins" },
+    { role: "manager", title: "Managers" },
+    { role: "employee", title: "Employees" },
   ];
-
 
   // Hide context menu on click
   useEffect(() => {
@@ -58,19 +56,51 @@ export function Manage() {
     loadUsers();
   }, []);
 
+  // 📌 Load all users
   const loadUsers = async () => {
+    const query = `
+      query {
+        allUsers {
+          _id
+          name
+          username
+          role
+          age
+          dep_id {
+            _id
+            name
+          }
+          project_id {
+            _id
+            name
+          }
+        }
+      }
+    `;
     try {
-      const response = await axios.get(
-        `${BASE_URL}/users/allUsers/allInfo`
-      );
-      setUsers(response.data);
+      const response = await fetch(`${BASE_URL}/graphql`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      const result = await response.json();
+      if (result.errors) {
+        showAlert(result.errors[0].message, "error");
+        return;
+      }
+
+      setUsers(result.data.allUsers);
     } catch (err) {
       showAlert("Failed to load users.", "error");
       console.log(err);
     }
   };
 
-  // Custom alert handler
+  // 📌 Custom alert handler
   const showAlert = (msg, type = "info") => {
     setAlert({ msg, type });
   };
@@ -79,58 +109,112 @@ export function Manage() {
     if (selectedUserId) navigate(`/profile?id=${selectedUserId}`);
   };
 
-  const promote = async (id, role) => {
-    const token = localStorage.getItem("token");
+  // 📌 Promote user
+  const promote = async (id) => {
+    const mutation = `
+      mutation Promote($id: ID!) {
+        promoteUser(id: $id) {
+          _id
+          role
+        }
+      }
+    `;
     try {
-      await axios.put(
-        `${BASE_URL}/users/promote/${id}/${role}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      await loadUsers();
-      setPromoteUser(null);
-      showAlert("User promoted successfully!", "success");
-    } catch (err) {
-      if (err.response) showAlert(err.response.data.message || "Something went wrong", "error");
-      else showAlert("Network error, please try again later", "error");
-      setPromoteUser(null);
-    }
-  };
-
-  const demote = async (id , role ) =>{
-    const token = localStorage.getItem("token");
-    try {
-      await axios.put(
-        `${BASE_URL}/users/demote/${id}/${role}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      await loadUsers();
-      setDemoteUser(null);
-      showAlert("User demoted successfully!", "success");
-    } catch (err) {
-      if (err.response) showAlert(err.response.data.message || "Something went wrong", "error");
-      else showAlert("Network error, please try again later", "error");
-      setDemoteUser(null);
-    }
-  }
-
-  const fireUser = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      await axios.delete(`${BASE_URL}/users/delete/${deleteUser._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(`${BASE_URL}/graphql`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ query: mutation, variables: { id } }),
       });
-      await loadUsers();
-      setDeleteUser(null);
-      showAlert("User fired successfully!", "success");
-    } catch (err) {
-      if (err.response) showAlert(err.response.data.message || "Something went wrong", "error");
-      else showAlert("Network error, please try again.", "error");
+
+      const result = await response.json();
+      if (result.errors) {
+        showAlert(result.errors[0].message, "error");
+      } else {
+        await loadUsers();
+        setPromoteUser(null);
+        showAlert("User promoted successfully!", "success");
+      }
+    } catch {
+      showAlert("Network error, please try again later", "error");
+      setPromoteUser(null);
+    }
+  };
+
+  // 📌 Demote user
+  const demote = async (id) => {
+    const mutation = `
+      mutation Demote($id: ID!) {
+        demoteUser(id: $id) {
+          _id
+          role
+        }
+      }
+    `;
+    try {
+      const response = await fetch(`${BASE_URL}/graphql`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ query: mutation, variables: { id } }),
+      });
+
+      const result = await response.json();
+      if (result.errors) {
+        showAlert(result.errors[0].message, "error");
+      } else {
+        await loadUsers();
+        setDemoteUser(null);
+        showAlert("User demoted successfully!", "success");
+      }
+    } catch {
+      showAlert("Network error, please try again later", "error");
+      setDemoteUser(null);
+    }
+  };
+
+  // 📌 Delete user
+  const fireUser = async () => {
+    const mutation = `
+      mutation DeleteUser($id: ID!) {
+        deleteUser(id: $id) {
+          _id
+          username
+        }
+      }
+    `;
+    try {
+      const response = await fetch(`${BASE_URL}/graphql`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          query: mutation,
+          variables: { id: deleteUser._id },
+        }),
+      });
+
+      const result = await response.json();
+      if (result.errors) {
+        showAlert(result.errors[0].message, "error");
+      } else {
+        await loadUsers();
+        setDeleteUser(null);
+        showAlert("User fired successfully!", "success");
+      }
+    } catch {
+      showAlert("Network error, please try again.", "error");
       setDeleteUser(null);
     }
   };
 
+  // 📌 Search by username
   const handleUserSearch = (e) => {
     if (e.key === "Enter") {
       const query = e.target.value.trim();
@@ -146,15 +230,14 @@ export function Manage() {
   return (
     <>
       <Header />
-        {alert && (
-          <CustomAlert
-            message={alert.msg}
-            type={alert.type}
-            onClose={() => setAlert(null)}
-          />
-        )}
+      {alert && (
+        <CustomAlert
+          message={alert.msg}
+          type={alert.type}
+          onClose={() => setAlert(null)}
+        />
+      )}
       <div className="page-container">
-
         <div className="page-content">
           <div className="grid-background" />
           <div className="glowing-orbs orb-1" />
@@ -187,7 +270,7 @@ export function Manage() {
               setSelectedUserId={setSelectedUserId}
               setPromoteUser={setPromoteUser}
               setDeleteUser={setDeleteUser}
-              setDemoteUser = {setDemoteUser}
+              setDemoteUser={setDemoteUser}
             />
           ))}
         </div>

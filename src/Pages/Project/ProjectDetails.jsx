@@ -60,13 +60,13 @@ export function ProjectDetails({projectDetails , getBarColor , getProgress ,proj
                             <td>{task.days_to_finish}</td>
                             {role === 'manager' && (
                                 <>
-                                    <td>{task.assigned_to}</td>
+                                    <td>{task.username}</td>
                                 </>
                             )}
                             <td>{task.state}</td>
                             {role === 'employee' ? <><td>
                                 <button
-                                onClick={() => submitTask(task._id , projectDetails.managerId , projectDetails.id)}
+                                onClick={() => submitTask(task._id , projectDetails.id)}
                                 className="task-submit-btn"
                                 >Submit
                                 </button>
@@ -95,7 +95,7 @@ export function ProjectDetails({projectDetails , getBarColor , getProgress ,proj
                     )}
                     </>
                 ) : (
-                    <p className="no-tasks-msg">No tasks assigned for you yet!</p>
+                    <p className="no-tasks-msg">No tasks assigned for you yet!</p>// i didnot explain shit and now im lost 
                 )}
                 </div>
             </>

@@ -1,35 +1,35 @@
-  let io = null;
+// socket.js
+import { Server } from "socket.io";
 
-  function init(server) {
-    const { Server } = require("socket.io");
-    io = new Server(server, {
-      cors: {
-        origin: "http://localhost:5173",
-        methods: ["GET", "POST"],
-        credentials : true
-      },
-    });
+let io = null;
 
-    io.on("connection", (socket) => {
-      const userId = socket.handshake.auth?.userId;
-      if (userId) {
-        socket.join(userId.toString()); // store userId in a room
-        console.log(`User ${userId} connected with socket ${socket.id}`);
-      }
+export function init(server) {
+  io = new Server(server, {
+    cors: {
+      origin: "http://localhost:5173",
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+  });
 
-      socket.on("disconnect", () => {
-        console.log(`Socket ${socket.id} disconnected`);
-      });
-    });
-
-    return io;
-  }
-
-  function getIO() {
-    if (!io) {
-      throw new Error("Socket.io not initialized!");
+  io.on("connection", (socket) => {
+    const userId = socket.handshake.auth?.userId;
+    if (userId) {
+      socket.join(userId.toString()); // store userId in a room
+      console.log(`User ${userId} connected with socket ${socket.id}`);
     }
-    return io;
-  }
 
-  module.exports = { init, getIO };
+    socket.on("disconnect", () => {
+      console.log(`Socket ${socket.id} disconnected`);
+    });
+  });
+
+  return io;
+}
+
+export function getIO() {
+  if (!io) {
+    throw new Error("Socket.io not initialized!");
+  }
+  return io;
+}

@@ -1,9 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './styles/Login.css';
-import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { CustomAlert } from '../Components/CustomAlert';
-import {jwtDecode} from "jwt-decode";
 import { connectSocket  , initSocket , disconnectSocket} from '../../socketClient';
 export function Login() {
   const navigate = useNavigate();
@@ -14,24 +12,7 @@ export function Login() {
 
   const BASE_URL = import.meta.env.VITE_API_URL;
 
-  const showAlert = (msg, type = "error") => {
-    setAlert({ msg, type });
-  };
-
-  const submithtmlForm = async (e) => {
-    e.preventDefault();
-    try {
-      const results = await axios.post(`${BASE_URL}/users/login`, {
-        username,
-        password
-      });
-    
-      const token = results.data.token;
-      const payload = jwtDecode(token);
-      const role = payload.role;
-      const id = payload.id;
-      const userName = payload.username;
-
+  useEffect(() =>{
       const queryParams = new URLSearchParams(window.location.search);
       const logOut = queryParams.get('logout');
       if (logOut){
@@ -39,22 +20,63 @@ export function Login() {
         disconnectSocket();
         console.log('socket disconnected');
       }
-        
+  } , [])
 
+  const showAlert = (msg, type = "error") => {
+    setAlert({ msg, type });
+  };
+
+  const submithtmlForm = async (e) => {
+    e.preventDefault();
+    const mutation = `
+      mutation LoginUser($username: String!, $password: String!) {
+        login(username: $username, password: $password) {
+          token
+          user {
+            _id
+            username
+            role
+            name
+          }
+        }
+      }
+    `;
+    const variables = { username, password };
+
+    try {
+      const response = await fetch(`${BASE_URL}/graphql`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: mutation, variables }),
+      });
+
+      const results = await response.json(); 
+      if (results.errors) {
+        showAlert(results.errors[0].message, "error");
+        return;
+      }
+    
+      const { token, user: userData } = results.data.login;
       localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify({ id, role , userName }));
+      localStorage.setItem("user",
+         JSON.stringify({
+          id : userData._id,
+          role : userData.role,
+          userName : userData.username
+      }));
 
-    showAlert("Login successful!", "success"); // Show success alert
+      showAlert("Login successful!", "success"); // Show success alert
+        
     // tell the server who logged in for websocket communication
-    if (id){
-      initSocket(import.meta.env.VITE_API_URL, id);
-      const socket = connectSocket(id);
-      socket.on("connect", () => console.log("Socket connected for user:", id));
+    if (userData._id) {
+      initSocket(import.meta.env.VITE_API_URL, userData._id);
+      const socket = connectSocket(userData._id);
+      socket.on("connect", () => console.log("Socket connected for user:", userData._id));
+      localStorage.setItem('loggedIn' , true);
     }
      setTimeout(() => navigate("/Home"), 1000);
     } catch (err) {
-      if (err.response) showAlert(err.response.data.message || "Server error, please try again");
-      else showAlert("Something went wrong");
+      showAlert("Network error, please try again", "error");
     }
   };
 

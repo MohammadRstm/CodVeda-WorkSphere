@@ -48,7 +48,7 @@ export function UsersTable({ role, title, users, visibleRows, setVisibleRows, se
             {role !== 'admin' && (
               <>
               <td>{user.dep_id?.name || ""}</td>
-              <td>{user.project_id?.name || ""}</td>
+              <td>{user.project_id?.name || "N/A"}</td>
               </>
             )}
         

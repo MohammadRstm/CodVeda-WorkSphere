@@ -12,13 +12,15 @@ import { CustomAlert } from './Components/CustomAlert';
 import { onNotification , offNotification , getSocket} from '../socketClient';
 import ChatWidget from './Components/ChatWidget';
 import { useLocation } from 'react-router-dom';
+import { connectSocket  , initSocket } from '../socketClient';
+
 
 /*
 whats next?
 -- add a websocket to send users notifications -VL - done (add a message collection in the db for saving user messages)
 -- migrate the whole mysql database with its data to a MONGO data base -VVL -- DONE
--- go through the whole project again and look for redundant code and eliminate it -L
--- change your restful api system to a graphQL one -VVVL - 
+-- go through the whole project again and look for redundant code and eliminate it -L 
+-- change your restful api system to a graphQL one -VVVL - DONNEEEE
 -- prepare files for online access i.e for deployment on AWS- L 
 -- create huge testcase runs on every file making sure nothing is broken- L -> VVVVL - 3/4 done
 -- go through backend file and also eliminate redundant code- L - done
@@ -45,15 +47,16 @@ Phase 1  :
 
 Phase 2 :
 -- testing system notifications:
--- task notifications
--- project assigment(manager)
--- project submission (admin)
+-- task notifications - done 
+-- project assigment(manager) - done 
 -- messaging system : 
 --- ensure messages are still received even when the user is on the chat box - done
 --- create a messages collection in the db to save messages - done 
 --- only load the messages that belong to the current chat opened - done
 --- display the number of messages received from different chats near the chat box
-----Bugs : - on page reload the socket gets disconnected so we need to intialize it again
+----Bugs : - on page reload the socket gets disconnected so we need to intialize it again - fixed
+
+-- TEST COMPLETE --
 */
 
 function App() {
@@ -76,10 +79,18 @@ function App() {
   let intervalId;
 
   const handleNotification = (data) => {
+    console.log('gothere')
     if (!data) return;
     console.log("Notification", data);
     showAlert(data.message);
   };
+
+  if (localStorage.getItem('loggedIn')){
+    const userData = JSON.parse(localStorage.getItem('user'));
+    initSocket(import.meta.env.VITE_API_URL, userData.id);
+    const socket = connectSocket(userData.id);
+    socket.on("connect", () => console.log("Socket connected for user:", userData.id));
+  }
 
   const checkSocket = () => {
     const socket = getSocket();

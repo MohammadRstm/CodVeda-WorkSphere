@@ -1,11 +1,6 @@
-export function ProjectContextMenu({setDeleteProject , setEditProject , selectedProject , getProjectDetails , setUpdateForm}){
-
-
+export function ProjectContextMenu({setDeleteProject , setEditProject , selectedProject , setUpdateForm}){
     return (
            <div id="context-menu" className="hidden">
-                        <button id="show-profile" onClick={getProjectDetails}>
-                            details
-                        </button>
                         <button
                             id="edit-action"
                             onClick={() => {

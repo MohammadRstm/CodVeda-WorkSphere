@@ -1,9 +1,10 @@
-const User = require("./User");
-const Project = require("./Project");
-const Department = require("./Department");
-const Message = require('./Message');
+// models/index.js
+import User from "./User.js";
+import Project from "./Project.js";
+import Department from "./Department.js";
+import Message from "./Message.js";
 
-module.exports = {
+export {
   User,
   Project,
   Department,

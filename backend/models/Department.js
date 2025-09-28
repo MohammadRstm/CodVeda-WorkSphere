@@ -1,4 +1,6 @@
-const mongoose = require("mongoose");
+// models/Department.js
+import mongoose from "mongoose";
+
 const { Schema, model } = mongoose;
 
 const departmentSchema = new Schema(
@@ -10,4 +12,4 @@ const departmentSchema = new Schema(
   }
 );
 
-module.exports = model("Department", departmentSchema);
+export default model("Department", departmentSchema);

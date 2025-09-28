@@ -31,18 +31,39 @@ export default function ChatWidget() {
 
   // load messages
   useEffect(() =>{
+    if (!selectedUser) return; // <<< important
     const loadMessages = async () =>{
       try{
-        const res = await axios.get(`${BASE_URL}/messages/allMessages/${user.id}/${selectedUser.id}`);
-        if (res.data){
-           const loadedMessages = res.data.map((mssg) => ({
+        const query = `
+          query AllMessages($senderId: ID!, $receiverId: ID!) {
+            allMessages(senderId: $senderId, receiverId: $receiverId) {
+              senderId
+              receiverId
+              sentAt
+              message
+            }
+          }
+        `;
+        const variables = {
+          senderId : user.id,
+          receiverId : selectedUser._id
+        }
+        const res = await fetch(`${BASE_URL}/graphql` , {
+          method : 'POST',
+          headers : {
+            "Content-type" : "application/json",
+            Authorization : `Bearer ${token}`
+          },
+          body : JSON.stringify({query , variables})
+        });
+        const result = await res.json();
+        if(result.errors) throw new Error(result.errors[0].message || 'Server error');
+          const loadedMessages = result.data.allMessages.map((mssg) => ({
             type: mssg.senderId === user.id ? 'sender' : 'receiver',
             text: mssg.message,
             time: mssg.sentAt,
           }));
-          console.log(res.data);
           setMessages(loadedMessages);
-        }
       }catch(err){
         console.log(err.message || 'messages did not load');
       }
@@ -53,13 +74,38 @@ export default function ChatWidget() {
   // Load users
   useEffect(() => {
     const loadUsers = async () => {
-      try {
-        const res = await axios.get(
-          `${BASE_URL}/users/managers/employees/profiles/${user.id}`
-        );
-        if (res) setUsers(res.data);
-      } catch (err) {
-        console.log(err.response ? "server error" : "network error");
+      const query = `
+        query{
+          allUsers {
+            _id
+            name
+            username
+            profile{
+              photo_url
+            }
+            role
+          }
+        }
+      `;
+      try{
+        const res = await fetch(`${BASE_URL}/graphql` , {
+          method : 'POST',
+          headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          },
+        body: JSON.stringify({ query }),
+        });
+
+        if(res){
+          const results = await res.json();
+          if(results.data.allUsers){
+            setUsers(results.data.allUsers.filter((u) => u._id != user.id))
+          } 
+        }
+
+      }catch (err) {
+        console.log(err.message ? "server error" : "network error");
       }
     };
     loadUsers();
@@ -75,37 +121,54 @@ export default function ChatWidget() {
     const socket = getSocket();
     if (!socket) return;
     const handleMessage = (data) => {
-      if (selectedUser && data.userId === selectedUser.id) {
+      if (selectedUser && data.userId === selectedUser._id) {
+        console.log('here')
         setMessages((prev) => [
           ...prev,
           { type: "receiver", text: data.message, time:  new Date().toISOString() },
         ]);
       }
     };
-
     socket.on("message", handleMessage);
     return () => socket.off("message", handleMessage);
-  }, [selectedUser]);
+  }, [selectedUser , messages]);
 
   const sendMessage = async () => {
     if (!message.trim()) return;
-    const receipient = selectedUser.id;
-    try {
-      await axios.post(
-        `${BASE_URL}/users/messages/send/${receipient}`,
-        { message },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+    const receipient = selectedUser._id;
+    try{
+      const mutation = `
+        mutation SendMessage($senderId: ID! , $receiverId: ID! , $message: String!){
+          sendMessage(senderId : $senderId , receiverId : $receiverId , message: $message){
+            message
+          }
+        }
+      `;
+      const variables = {
+        receiverId : receipient,
+        senderId : user.id,
+        message
+      }
+      const res = await fetch(`${BASE_URL}/graphql` , {
+        method : 'POST',
+        headers :{
+          "Content-type":"application/json",
+          Authorization : `Bearer ${token}`
+        },
+        body : JSON.stringify({query : mutation , variables})
+      });
+      const result = await res.json();
+      if(result.errors) throw new Error(result.errors[0].message || 'Server error');
       // Add the sent message to the chat locally
       setMessages((prev) => [
         ...prev,
         { type: "sender", text: message, time: new Date().toISOString() },
       ]);
       setMessage(""); // Clear input
-    } catch (err) {
-      console.log(err.response ? "server error" : "network error");
+    }catch(err){
+      console.log(err.message ? "server error" : "network error");  
     }
-  };
+};
 
   // Message component
  const Message = ({ message, time, type }) => (
@@ -143,14 +206,14 @@ export default function ChatWidget() {
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((u) => (
                   <div
-                    key={u.id}
+                    key={u._id}
                     className="chat-user"
                     onClick={() => {
                       setSelectedUser(u);
                       setMessages([]); // Clear previous chat
                     }}
                   >
-                    <img src={`${u.photo_url}`} alt="user" />
+                    <img src={`${u.profile.photo_url}`} alt="user" />
                     <div className="chat-user-info">
                       <p>{u.name}</p>
                       <span>{u.role}</span>
@@ -167,7 +230,7 @@ export default function ChatWidget() {
             <div className="chat-area">
               <div className="chat-area-header">
                 <img
-                  src={selectedUser.photo_url}
+                  src={selectedUser.profile.photo_url}
                   alt="user"
                   className="chat-area-photo"
                 />

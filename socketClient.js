@@ -8,7 +8,10 @@ export const initSocket = (baseURL , userId) => {
     socket = io(baseURL, {
     withCredentials: true,
     autoConnect: true,
-    auth : {userId}
+    auth : {userId},
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000
    });
   }
   return socket;
@@ -40,6 +43,7 @@ export const getSocket = () => {
 // Notification helpers
 export const onNotification = (callback) => {
   if (!socket) throw new Error("Socket not initialized");
+  console.log('socket')
   socket.on("notification", callback);
 };
 

@@ -1,5 +1,4 @@
 import "../styles/Project.css";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Header } from "../../Components/Header";
 import { CustomAlert } from "../../Components/CustomAlert";
@@ -10,487 +9,467 @@ import { ProjectContextMenu } from "./ProjectContextMenu";
 import { ProjectDeletePrompt } from "./ProjectDeletePrompt";
 
 export function Project() {
-    const [alert, setAlert] = useState(null); // for custom alert 
-    const [projectsByDept, setProjectsByDept] = useState({}); // for project' data
-    const [projectDetails, setProjectDetails] = useState(null); // details of a single project
-    const [showForAdmin , setShowForAdmin] = useState(true);// show admin's page by default
-    const [selectedProject, setSelectedProject] = useState(null); // selected project for a detailed review
-    const [projectProgress, setProjectProgress] = useState(0); // progress detail
-    const [projectForm, setProjectForm] = useState(""); // create project form 
-    const [departments, setDepartments] = useState([]); // for creation form
-    const [managers, setManagers] = useState([]); // for creation form 
-    const [employees, setEmployees] = useState([]); // for task creation form
-    const [projects, setProjects] = useState([]); // gets all the projects
-    const [editProject, setEditProject] = useState(null); // track which project to edit 
-    const [deleteProject, setDeleteProject] = useState(null); // track which project to delete
+  const [alert, setAlert] = useState(null);
+  const [projectsByDept, setProjectsByDept] = useState({});
+  const [projectDetails, setProjectDetails] = useState(null);
+  const [showForAdmin, setShowForAdmin] = useState(true);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [projectProgress, setProjectProgress] = useState(0);
+  const [projectForm, setProjectForm] = useState("");
+  const [departments, setDepartments] = useState([]);
+  const [managers, setManagers] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [editProject, setEditProject] = useState(null);
+  const [deleteProject, setDeleteProject] = useState(null);
 
-    const [updateForm, setUpdateForm] = useState({ // update form for projects
-        newName: "",
-        newDeadLine: "",
-        newManager: ""
-    });
+  const [updateForm, setUpdateForm] = useState({
+    newName: "",
+    newDeadLine: "",
+    newManager: ""
+  });
 
-    const token = localStorage.getItem("token");
-    const role = JSON.parse(localStorage.getItem("user")).role;
-    const userId = JSON.parse(localStorage.getItem("user")).id;
-    const username = JSON.parse(localStorage.getItem("user")).userName;
+  const role = JSON.parse(localStorage.getItem("user")).role;
+  const userId = JSON.parse(localStorage.getItem("user")).id;
+  const username = JSON.parse(localStorage.getItem("user")).userName;
+  const BASE_URL = import.meta.env.VITE_API_URL;
 
-    const BASE_URL = import.meta.env.VITE_API_URL;// import base url from env file
+  const handleChange = (e) => {
+    setUpdateForm({ ...updateForm, [e.target.name]: e.target.value });
+  };
 
-    const handleChange = (e) => {
-        setUpdateForm({ ...updateForm, [e.target.name]: e.target.value });
-    };
+  const graphqlRequest = async (query, variables = {}) => {
+    try {
+      const token = localStorage.getItem("token"); 
+      const res = await fetch(`${BASE_URL}/graphql`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ query, variables }),
+      });
 
-    const submitChanges = async () => {
-        const token = localStorage.getItem('token');
+      const result = await res.json();
+      if (result.errors) throw new Error(result.errors[0].message);
+      return result.data;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
 
-        try {
-            const response = await axios.put(
-                `${BASE_URL}/projects/update/${editProject.id}/${editProject.managerId}`,
-                {
-                    newName: updateForm.newName,
-                    newManager: updateForm.newManager,
-                    newDeadline: updateForm.newDeadLine
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+  const showAlert = (msg, type = "info") => {
+    setAlert({ msg, type });
+  };
 
-            setEditProject(null);
-
-            // ✅ Re-fetch all projects to reflect the swap immediately
-            const res = await axios.get(`${BASE_URL}/projects/extend/departments`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            const data = res.data;
-            setProjects(data);
-            console.log(data)
-            const grouped = {};
-            await Promise.all(
-                data.map(async (proj) => {
-                    const completionPercent = await getCompletionPercentage(proj.projId);
-                    const dep = proj.depName;
-                    if (!grouped[dep]) grouped[dep] = [];
-                    grouped[dep].push({
-                        id: proj.projId,
-                        name: proj.projName,
-                        manager: proj.managerName,
-                        startDate: proj.start_date,
-                        deadline: proj.deadline,
-                        completionPercent,
-                        dep_id: proj.dep_id,
-                        managerId: proj.managerId
-                    });
-                })
-            );
-
-            setProjectsByDept(grouped);
-            showAlert(response.data.message, 'success');
-
-        } catch (err) {
-            if (err.response)
-                showAlert(err.response.data.message || 'Server error, please try again');
-            else
-                showAlert("Network error, please try again later");
-        }
-    };
-
-    const removeProject = async () => {
-        try {
-            await axios.delete(`${BASE_URL}/projects/delete`, {
-                data: { projectId: deleteProject.id },
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            showAlert('Project successfully deleted with all its related tasks', 'success');
-            setDeleteProject(null);
-
-            // we need to update projects again
-            const res = await axios.get(`${BASE_URL}/projects/extend/departments`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            const data = res.data;
-            setProjects(data);
-
-            const grouped = {};
-            await Promise.all(
-                data.map(async (proj) => {
-                    const completionPercent = await getCompletionPercentage(proj.projId);
-                    const dep = proj.depName;
-                    if (!grouped[dep]) grouped[dep] = [];
-                    grouped[dep].push({
-                        id: proj.projId,
-                        name: proj.projName,
-                        manager: proj.name,
-                        startDate: proj.start_date,
-                        deadline: proj.deadline,
-                        completionPercent,
-                        dep_id: proj.dep_id,
-                        managerId: proj.managerId
-                    });
-                })
-            );
-
-            setProjectsByDept(grouped);
-
-        } catch (err) {
-            if (err.response)
-                showAlert(err.response.data.message || 'Server error, please try again');
-            else
-                showAlert("Network error, please try again later");
-        }
-    };
-
-    const loadDepartmenst = async () => {
-        try {
-            const response = await axios.get(`${BASE_URL}/departments/allDepartments`);
-            setDepartments(response.data);
-        } catch (err) {
-            if (err.response)
-                showAlert(err.response.data.message || 'Server error, please try again');
-            else
-                showAlert("Network error, please try again later");
-        }
-    };
-
-    const loadManagers = async () => {
-        try {
-            const response = await axios.get(`${BASE_URL}/users/managers`);
-            setManagers(response.data);
-        } catch (err) {
-            if (err.response)
-                showAlert(err.response.data.message || 'Server error, please try again');
-            else
-                showAlert("Network error, please try again later");
-        }
-    };
-
-    const loadEmployees = async () => {
-        try {
-            const response = await axios.get(`${BASE_URL}/users/all/employees`);
-            setEmployees(response.data);
-        } catch (err) {
-            if (err.response)
-                showAlert(err.response.data.message || 'Server error, please try again');
-            else
-                showAlert("Network error, please try again later");
-        }
-    };
-
-    useEffect(() => {
-        if (projectDetails?.id) {
-            (async () => {
-                const progress = await getCompletionPercentage(projectDetails.id);
-                setProjectProgress(progress);
-            })();
-        }
-    }, [projectDetails]);
-
-    useEffect(() => {
-        const queryParams = new URLSearchParams(window.location.search);
-        const nature = queryParams.get('nature'); // nature is for the admin's action bar (create)
-        const projectId = queryParams.get('projectId'); // for admins when they want to view a specific project
-        const userId = queryParams.get('userId'); // for employees and managers
-
-        if (nature) { // admin's project Management dashboard
-            // load some data for the forms
-            const fetchFormData = async () => {
-                await loadDepartmenst();
-                await loadEmployees();
-                await loadManagers();
-            };
-            fetchFormData();
-
-            if (nature === 'create') {
-                setProjectForm('creation');
+  const fetchProjects = async () => {
+    const query = `
+      query {
+         allProjects {
+            _id
+            name
+            dep_id {
+            _id
+            name
             }
+            managerName
+            managerId
+            start_date
+            deadline
+        }
+      }
+    `;
+
+    try {
+      const data = await graphqlRequest(query);
+      const projects = data.allProjects;
+      setProjects(projects);
+
+      const grouped = {};
+      for (const proj of projects) {
+        if (!proj.managerId) continue;
+        const completionPercent = await getCompletionPercentage(proj._id);
+        const dep = proj.dep_id.name;
+        if (!grouped[dep]) grouped[dep] = [];
+        grouped[dep].push({
+          id: proj._id,
+          name: proj.name,
+          manager: proj.managerName,
+          startDate: proj.start_date,
+          deadline: proj.deadline,
+          completionPercent,
+          dep_id: proj.dep_id._id,
+          managerId: proj.managerId,
+        });
+      }
+      setProjectsByDept(grouped);
+    } catch (err) {
+      showAlert(err.message || "Failed to load projects", "error");
+    }
+  };
+
+  const getCompletionPercentage = async (projectId) => {
+    const query = `
+      query ProjectProgress($projectId: ID!) {
+        projectProgress(projectId: $projectId)
+      }
+    `;
+    try {
+      const data = await graphqlRequest(query, { projectId });
+      return (data.projectProgress || 0) * 100;
+    } catch (err) {
+      showAlert(err.message || "Failed to load project progress", "error");
+      return 0;
+    }
+  };
+
+  const getProjectForUser = async (userQueryId) => {
+        const query = `
+          query ProjectDetailsByUser($id: ID!) {
+            projectDetails(id: $id) {
+              id
+              projectName
+              depName
+              dep_id
+              start_date
+              deadline
+              managerName
+              managerId
+              tasks {
+                _id 
+                name
+                state
+                days_to_finish
+                username
+              }
+            }
+          }
+        `;
+        try {
+          const data = await graphqlRequest(query, { id: userQueryId });
+          if (!data.projectDetails){
+            console.log('here')
             return;
+          } 
+          setProjectDetails(data.projectDetails);
+        } catch (err) {
+          showAlert(err.message || "Failed to load project", "error");
         }
+  };
 
-        const fetchManager = async () => {
-            await loadManagers();
-        };
-        fetchManager();
-
-        const fetchProjects = async () => {
-            if (!projectId) { // normal admin page (overview of all projects)
-                try {
-                    const res = await axios.get(`${BASE_URL}/projects/extend/departments`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    const data = res.data;
-                    setProjects(data);
-                    
-                    const grouped = {};
-                    await Promise.all(
-                        data.map(async (proj) => {
-                            const completionPercent = await getCompletionPercentage(proj.projId);
-                            const dep = proj.depName;
-                            if (!grouped[dep]) grouped[dep] = [];
-                            grouped[dep].push({
-                                id: proj.projId,
-                                name: proj.projName,
-                                manager: proj.managerName,
-                                startDate: proj.start_date,
-                                deadline: proj.deadline,
-                                completionPercent,
-                                dep_id: proj.dep_id,
-                                managerId: proj.managerId
-                            });
-                        })
-                    );
-
-                    setProjectsByDept(grouped);
-
-                } catch (err) {
-                    if (err.response)
-                        showAlert(err.response.data.message || "Server error , please try again", "error");
-                    else
-                        showAlert("Network error, please try again later");
-                }
-
-            } else { // show project details for admin 
-                try {
-                    const response = await axios.get(`${BASE_URL}/projects/details/${projectId}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    const data = response.data;
-                    setProjectDetails(data);
-                } catch (err) {
-                    if (err.response)
-                        showAlert(err.response.data.message || 'Server error, please try again');
-                    else
-                        showAlert("Network error, please try again later");
-                }
-            }
-        };
-
-        if (userId) { // show page for managers and employees (project details straight away)
-            setShowForAdmin(false);
-            const getProjectForUser = async () => {
-                try {
-                    const response = await axios.get(`${BASE_URL}/projects/details/user/${userId}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                     if (response.data.message === "No project assigned yet!") {
-                        // just return silently, no alert
-                        return;
-                    }
-                    const data = response.data;
-                    setProjectDetails(data);
-                } catch (err) {
-                    if (err.response)
-                        showAlert(err.response.data.message || 'Server error, please try again');
-                    else
-                        showAlert("Network error, please try again later");
-                }
-            };
-            getProjectForUser();
-        } else { // show normal page for admins
-            setShowForAdmin(true);
-            fetchProjects();
+  const submitChanges = async () => {
+    const mutation = `
+      mutation UpdateProject($id: ID!, $newName: String!, $newManager: ID, $oldManager: ID , $newDeadline : String) {
+        updateProject(id: $id, newName: $newName, newManager: $newManager, oldManager: $oldManager , newDeadline : $newDeadline) {
+          _id
+          name
         }
+      }
+    `;
+    try {
+      await graphqlRequest(mutation, {
+        id: editProject.id,
+        newName: updateForm.newName,
+        newManager: updateForm.newManager,
+        newDeadline : updateForm.newDeadLine.toString(),
+        oldManager: editProject.managerId,
+      });
 
-        // FOR HIDING CONTEXT MENU WHENEVER THE PAGE IS CLICKED 
-        const handleClick = (e) => {
-            const menu = document.getElementById("context-menu");
-            const editBtn = document.getElementById("edit-action");
-            const deletBtn = document.getElementById('delete-button');
+      setEditProject(null);
+      await fetchProjects();
+      showAlert("Project updated successfully", "success");
+    } catch (err) {
+      showAlert(err.message || "Failed to update project", "error");
+    }
+  };
 
-            // Always hide the context menu
-            if (menu) menu.classList.add("hidden");
-
-            if (deleteProject && !deletBtn.contains(e.target)) {
-                setDeleteProject(null);
-            }
-
-            // If user clicked the edit button → don't clear edit mode
-            if (editBtn && editBtn.contains(e.target)) return;
-
-            // Otherwise → only clear edit mode if clicked outside the table
-            const table = document.querySelector(".users-table");
-            if (table && !table.contains(e.target)) {
-                setEditProject(null);
-            }
-        };
-
-        document.addEventListener("click", handleClick);
-        return () => document.removeEventListener("click", handleClick);
-
-    }, []);
-
-    const assignTask = (managerId, projId, username, depId) => {
-        window.location.href = `/project?nature=create&managerid=${managerId}&project_id=${projId}&username=${username}&depid=${depId}`;
-    };
-
-    const submitProject = async () =>{
-        const managerId = userId;// get current manager
-        try{
-           const hasIncomplete = projectDetails.tasks.some((task) => task.state !== 'done');
-            if (hasIncomplete) {
-                return showAlert('Some task(s) are not done!', 'error');
-            }
-            await axios.put(`${BASE_URL}/users/submitProject/${managerId}/${projectDetails.id}`, {} , {
-                headers : {
-                    Authorization:`Bearer ${token}` 
-                }
-            });
-            showAlert('Project submitted successfuly' , 'success');
-        }catch(err){
-            if (err.response)
-                showAlert(err.response.data.message || 'Server error, please try again');
-            else
-                showAlert('Network error, please try again later');
+  const removeProject = async () => {
+    const mutation = `
+      mutation DeleteProject($id: ID!) {
+        deleteProject(id: $id) {
+          _id
         }
+      }
+    `;
+    try {
+      await graphqlRequest(mutation, { id: deleteProject.id });
+      setDeleteProject(null);
+      showAlert("Project deleted successfully", "success");
+      await fetchProjects();
+    } catch (err) {
+      showAlert(err.message || "Failed to delete project", "error");
+    }
+  };
+
+  // ------------------------- Form Data -------------------------
+  const loadDepartments = async () => {
+    const query = `
+      query {
+        allDepartments {
+          _id
+          name
+        }
+      }
+    `;
+    try {
+      const data = await graphqlRequest(query);
+      setDepartments(data.allDepartments);
+    } catch (err) {
+      showAlert(err.message || "Failed to load departments", "error");
+    }
+  };
+
+  const loadManagers = async () => {
+    const query = `
+      query {
+        allManagers {
+          _id
+          name
+          dep_id{
+            _id
+          }
+          project_id{
+          _id
+          }
+        }
+      }
+    `;
+    try {
+      const data = await graphqlRequest(query);
+      setManagers(data.allManagers);
+    } catch (err) {
+      showAlert(err.message || "Failed to load managers", "error");
+    }
+  };
+
+  const loadEmployees = async () => {
+    const query = `
+      query {
+        allEmployees {
+          _id
+          username
+          dep_id{
+          _id
+          }
+        }
+      }
+    `;
+    try {
+      const data = await graphqlRequest(query);
+      setEmployees(data.allEmployees);
+    } catch (err) {
+      showAlert(err.message || "Failed to load employees", "error");
+    }
+  };
+
+  // ------------------------- Task & Project Actions -------------------------
+  const submitTask = async (taskId) => {
+    const userId = JSON.parse(localStorage.getItem('user')).id;
+    const mutation = `
+      mutation UpdateTask($userId: ID!, $taskId: ID!) {
+        updateTask(userId: $userId, taskId: $taskId) {
+          _id
+          state
+        }
+      }
+    `;
+    try {
+      await graphqlRequest(mutation, {
+        userId,
+        taskId,
+      });
+
+      setProjectDetails((prev) => ({
+        ...prev,
+        tasks: prev.tasks.filter((task) => task._id !== taskId),
+      }));
+    } catch (err) {
+      showAlert(err.message || "Failed to submit task", "error");
+    }
+  };
+
+  const submitProject = async () => {
+    if (!projectDetails) return;
+    const hasIncomplete = projectDetails.tasks.some((task) => task.state !== "done");
+    if (hasIncomplete) return showAlert("Some task(s) are not done!", "error");
+
+    const mutation = `
+      mutation SubmitProject($managerId: ID! , $projectId: ID!) {
+        submitProject(manager: $managerId , projectId: $projectId) {
+          _id
+        }
+      }
+    `;
+    try {
+      await graphqlRequest(mutation, { managerId: userId , projectId : projectDetails.id});
+      showAlert("Project submitted successfully", "success");
+      setTimeout(async () =>{
+        await getProjectForUser(userId);
+      } , 2000);
+    } catch (err) {
+      showAlert(err.message || "Failed to submit project", "error");
+    }
+  };
+
+  const assignTask = (managerId, projId, username, depId) => {
+    window.location.href = `/project?nature=create&managerid=${managerId}&project_id=${projId}&username=${username}&depid=${depId}`;
+  };
+
+  // ------------------------- Effects -------------------------
+  useEffect(() => {
+    if (projectDetails?.id) {
+      (async () => {
+        const progress = await getCompletionPercentage(projectDetails.id);
+        setProjectProgress(progress);
+      })();
+    }
+  }, [projectDetails]);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const nature = queryParams.get("nature");
+    // const projectId = queryParams.get("projectId");
+    const userQueryId = queryParams.get("userId");
+    
+    const fetchManagers = async() =>{
+      await loadManagers();
     }
 
-    const removeTask = (tasks, taskId) => {
-        return tasks.filter(task => task._id !== taskId);
+    if (nature) {
+      const fetchFormData = async () => {
+        await loadDepartments();
+        await loadEmployees();
+        await fetchManagers();
+      };
+      fetchFormData();
+      if (nature === "create") setProjectForm("creation");
+      return;
+    }
+    fetchManagers();
+
+    if (userQueryId) {
+      setShowForAdmin(false);
+      getProjectForUser(userQueryId);
+    } else {
+      setShowForAdmin(true);
+      fetchProjects();
+    }
+
+    const handleClick = (e) => {
+      const menu = document.getElementById("context-menu");
+      const editBtn = document.getElementById("edit-action");
+      const deletBtn = document.getElementById("delete-button");
+
+      if (menu) menu.classList.add("hidden");
+      if (deleteProject && deletBtn && !deletBtn.contains(e.target)) setDeleteProject(null);
+      if (editBtn && editBtn.contains(e.target)) return;
+      const table = document.querySelector(".users-table");
+      if (table && !table.contains(e.target)) setEditProject(null);
     };
 
-    const submitTask = async (taskId , managerId , projectId) => {
-        try {
-            await axios.put(`${BASE_URL}/tasks/update`, { taskId  , managerId , projectId}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
 
-            setProjectDetails(prev => ({
-                ...prev,
-                tasks: removeTask(prev.tasks, taskId)
-            }));
+  // ------------------------- Progress Bar -------------------------
+  const getBarColor = (completionPercent) => {
+    const progress = completionPercent ?? 0;
+    const red = Math.min(255, 255 - progress * 2.55);
+    const green = Math.min(255, progress * 2.55);
+    return `rgb(${red}, ${green}, 0)`;
+  };
 
-        } catch (err) {
-            if (err.response)
-                showAlert(err.response.data.message || 'Server error, please try again');
-            else
-                showAlert("Network error, please try again later");
-        }
-    };
+  const getProgress = (completionPercent) => completionPercent ?? 0;
 
-    const getProjectDetails = async () => {
-        window.location.href = `/project?projectId=${selectedProject.id}`;
-    };
+  // ------------------------- JSX -------------------------
+  return (
+    <>
+      <Header />
+      <div className="glowing-orbs orb-1"></div>
+      <div className="glowing-orbs orb-2"></div>
+      <div className="glowing-orbs orb-3"></div>
 
-    const getCompletionPercentage = async (projectId) => {
-        try {
-            const res = await axios.get(`${BASE_URL}/projects/progress/${projectId}`);
-            return res?.data?.ratio ? res.data.ratio * 100 : 0;
-        } catch (err) {
-            if (!err.response) showAlert("Network error, please try again later");
-        }
-    };
+      {alert && (
+        <CustomAlert
+          message={alert.msg}
+          type={alert.type}
+          onClose={() => setAlert(null)}
+        />
+      )}
 
-    const showAlert = (msg, type = "info") => {
-        setAlert({ msg, type });
-    };
-
-    const getBarColor = (completionPercent) => {
-        const progress = getProgress(completionPercent);
-        const red = Math.min(255, 255 - progress * 2.55);
-        const green = Math.min(255, progress * 2.55);
-        return `rgb(${red}, ${green}, 0)`;
-    };
-
-    const getProgress = (completionPercent) => {
-        return completionPercent ?? 0;
-    };
-
-    return (
+      {projectForm ? (
         <>
-            <Header />
-            <div className="glowing-orbs orb-1"></div>
-            <div className="glowing-orbs orb-2"></div>
-            <div className="glowing-orbs orb-3"></div>
-
-            {alert && (
-                <CustomAlert
-                    message={alert.msg}
-                    type={alert.type}
-                    onClose={() => setAlert(null)}
-                />
+          {projectForm === "creation" &&
+            departments.length > 0 &&
+            managers.length > 0 && (
+              <ProjectCreationForm
+                departments={departments}
+                managers={managers}
+                employees={employees}
+                graphqlRequest = {graphqlRequest}
+              />
             )}
-
-            {projectForm != "" ? (
-                <>
-                    {projectForm === 'creation' && (
-                        <>
-                            {departments.length > 0 && managers.length > 0 ? (
-                                <ProjectCreationForm
-                                    departments={departments}
-                                    managers={managers}
-                                    employees={employees}
-                                />
-                            ) : (
-                                <p className="text-center mt-6">Loading form data...</p>
-                            )}
-                        </>
-                    )}
-                </>
-            ) : (
-                <>
-                    {/* FOR ADMINS ONLY */}
-                    {showForAdmin && (
-                        <>
-                            <div className="admin-actions-container">
-                                <h2>Project Management</h2>
-                                <ul className="admin-actions-list">
-                                    <li>
-                                        <a href="/project?nature=create">➕ Create a New Project</a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <ProjectAdminTable
-                                setSelectedProject={setSelectedProject}
-                                getBarColor={getBarColor}
-                                getProgress={getProgress}
-                                projectsByDept={projectsByDept}
-                                managers={managers}
-                                editProject={editProject}
-                                submitChanges={submitChanges}
-                                handleChange={handleChange}
-                                updateForm={updateForm}
-                            />
-                        </>
-                    )}
-
-                    {/* FOR MANAGERS AND EMPLOYEES (ADMINS CAN ACCESS THROUGH CONTEXT MENU) */}
-                    {!showForAdmin && (
-                        <ProjectDetails
-                            projectDetails={projectDetails}
-                            projectProgress={projectProgress}
-                            getBarColor={getBarColor}
-                            getProgress={getProgress}
-                            role={role}
-                            submitTask={submitTask}
-                            username={username}
-                            assignTask={assignTask}
-                            userId={userId}
-                            submitProject={submitProject}
-                        />
-                    )}
-
-                    {/* Context Menu */}
-                    <ProjectContextMenu
-                    selectedProject={selectedProject}
-                    setDeleteProject={setDeleteProject}
-                    setEditProject={setEditProject}
-                    getProjectDetails={getProjectDetails}
-                    setUpdateForm={setUpdateForm}
-                    />
-                    {/* Delete Prompt */}
-                    {deleteProject && (
-                        <ProjectDeletePrompt
-                        setDeleteProject={setDeleteProject}
-                        removeProject={removeProject}
-                        />
-                    )}
-                </>
+          {projectForm === "creation" &&
+            (!departments || !managers) && (
+              <p className="text-center mt-6">Loading form data...</p>
             )}
         </>
-    );
+      ) : (
+        <>
+          {showForAdmin && (
+            <>
+              <div className="admin-actions-container">
+                <h2>Project Management</h2>
+                <ul className="admin-actions-list">
+                  <li>
+                    <a href="/project?nature=create">➕ Create a New Project</a>
+                  </li>
+                </ul>
+              </div>
+              <ProjectAdminTable
+                setSelectedProject={setSelectedProject}
+                getBarColor={getBarColor}
+                getProgress={getProgress}
+                projectsByDept={projectsByDept}
+                managers={managers}
+                editProject={editProject}
+                submitChanges={submitChanges}
+                handleChange={handleChange}
+                updateForm={updateForm}
+              />
+            </>
+          )}
+
+          {!showForAdmin && (
+            <ProjectDetails
+              projectDetails={projectDetails}
+              projectProgress={projectProgress}
+              getBarColor={getBarColor}
+              getProgress={getProgress}
+              role={role}
+              submitTask={submitTask}
+              username={username}
+              assignTask={assignTask}
+              userId={userId}
+              submitProject={submitProject}
+            />
+          )}
+
+          <ProjectContextMenu
+            selectedProject={selectedProject}
+            setDeleteProject={setDeleteProject}
+            setEditProject={setEditProject}
+            setUpdateForm={setUpdateForm}
+          />
+          {deleteProject && (
+            <ProjectDeletePrompt
+            setDeleteProject={setDeleteProject}
+            removeProject={removeProject}
+            />
+          )}
+        </>
+      )}
+    </>
+  );
 }

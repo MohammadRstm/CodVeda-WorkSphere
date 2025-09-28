@@ -7,7 +7,7 @@ export function ProjectAdminTable({projectsByDept , getProgress , getBarColor , 
   
     useEffect(() =>{
         if (editProject)
-            setManagersSameDep(managers.filter((manager) => manager.dep_id == editProject.dep_id));
+            setManagersSameDep(managers.filter((manager) => manager.dep_id._id == editProject.dep_id));
     } , [editProject , managers]);
 
 
@@ -19,7 +19,6 @@ export function ProjectAdminTable({projectsByDept , getProgress , getBarColor , 
                             <thead>
                                 <tr>
                                 <th>Department</th>
-                                <th>Project ID</th>
                                 <th>Project Name</th>
                                 <th>Manager</th>
                                 <th>Start Date</th>
@@ -71,7 +70,6 @@ export function ProjectAdminTable({projectsByDept , getProgress , getBarColor , 
                                         {index === 0 && (
                                             <td rowSpan={deptProjects.length}>{dept}</td> // span all rows
                                         )}
-                                        <td>{proj.id}</td>
                                         <td>
                                             {editProject?.id === proj.id ? (
                                                 <input

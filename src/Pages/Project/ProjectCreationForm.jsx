@@ -2,10 +2,8 @@ import { useState  , useEffect} from "react";
 import axios from 'axios';
 import { CustomAlert } from "../../Components/CustomAlert";
 import { ProjectTaskCreationForm } from "./ProjectTaskCreationForm";
-import { useNavigate } from "react-router-dom";
 
-export function ProjectCreationForm({ departments, managers , employees}) {
-  const navigate = useNavigate();
+export function ProjectCreationForm({ departments, managers , employees , graphqlRequest}) {
   const [alert , setAlert] = useState(null);// for custom alert 
   const [step, setStep] = useState(1);// tracking which step of the form the user is in
   const [managerSameDep , setManagerSameDep] = useState(managers);// get managers in the project's department
@@ -82,35 +80,34 @@ export function ProjectCreationForm({ departments, managers , employees}) {
           }
           else
           setProject(newProject);// submit function returns the project created from the db
-        
         }
         getUsersSameDep();// get employees for drop down list 
         setStep(3);
     }else{// add tasks to the project (submits the project automatically)
     submitTasksForm();
-    // window.location.reload();// go back to projects overview
     }
   };
 
   const submitTasksForm = async () =>{
-    const token = localStorage.getItem('token');
     try{
-        await axios.post(`${BASE_URL}/tasks/addTasks` , {
-            tasks
-        }, {
-            headers : {
-                Authorization : `Bearer ${token}`
-            }
-        });
+        const mutation = `
+        mutation AddTasks($tasks : [TaskInput!]!){
+          addTask(tasks : $tasks){
+            name
+            description
+          }
+        }
+        `;
+        await graphqlRequest(mutation , {tasks});
         showAlert("Task(s) added successfully!" , 'success');
         setInterval(() =>{
+          if (user.role === 'admin')
+            window.location.href = '/project'
+          else
           window.location.href = `/project?userId=${user.id}`;
         } , 2000)
     }catch(err){
-        if (err.response)
-            showAlert (err.response.data.message || "Server failed , please try again" , 'error');
-        else
-            showAlert("Network error , please try again later")
+        showAlert(err.message || 'Server error, please try again later');
     }
   }
 
@@ -118,36 +115,32 @@ export function ProjectCreationForm({ departments, managers , employees}) {
     setAlert({ msg, type });
   };
 
-
   const submitForm = async () =>{
-    const token = localStorage.getItem('token');
-    try{
-        const response = await axios.post(`${BASE_URL}/projects/addProject` , {
-            formData 
-        } , {
-            headers : {
-                Authorization : `Bearer ${token}`
-            }
-        });
-        showAlert("Project Successfuly created and assigned" , 'success');
-        return response.data;
-    }catch(err){
-        if (err.response)
-            showAlert (err.response.data.message || "Server failed , please try again" , 'error');
-        else
-            showAlert("Network error , please try again later")
-    }
+      // const formdata
+    const mutation = `
+        mutation AddProject($formData : ProjectInput!){
+          addProject(formData : $formData){
+            _id
+            name
+          }
+        }
+      `;
+        try{
+          const data = await graphqlRequest(mutation ,{formData});
+          showAlert('Project added and assigned successfully' , 'success');
+          return data.addProject;
+        } catch (err) {
+          showAlert(err.message || "Something went wrong, please try again later", "error");
+        }
   }
-
   const getSameDepManagers = () =>{
      if (formData.department != ""){
         let sameDep = [];
         for (let i = 0 ; i < managers.length; i++){
-            if (managers[i].dep_id === formData.department)
+            if (managers[i].dep_id._id === formData.department && !managers[i].project_id)
                 sameDep.push(managers[i])
         }
         setManagerSameDep(sameDep);
-        console.log(sameDep)
     }
   }
 
@@ -155,7 +148,7 @@ export function ProjectCreationForm({ departments, managers , employees}) {
     if (formData.department != ""){
       let sameDep = [];
       for (let i = 0; i < employees.length; i++){
-        if (employees[i].dep_id === formData.department)
+        if (employees[i].dep_id._id === formData.department)
           sameDep.push(employees[i])
       }
       
