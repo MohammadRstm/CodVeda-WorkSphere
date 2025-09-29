@@ -14,6 +14,7 @@ import ChatWidget from './Components/ChatWidget';
 import { useLocation } from 'react-router-dom';
 import { connectSocket  , initSocket } from '../socketClient';
 
+//http://3.79.34.49:3000/
 
 /*
 whats next?

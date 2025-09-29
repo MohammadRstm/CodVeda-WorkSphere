@@ -78,7 +78,7 @@ async function startServer() {
     await mongoose.connect(mongoUri);
     console.log('✅ Connected to MongoDB!');
 
-    server.listen(3000, () => {
+    server.listen(3000,"0.0.0.0",  () => {
       console.log('🚀 Server running on http://localhost:3000');
       console.log('⚡ GraphQL endpoint ready at http://localhost:3000/graphql');
     });
