@@ -6,6 +6,8 @@ import { CustomAlert } from "../Components/CustomAlert";
 export function SignUp() {
   const navigate = useNavigate();
 
+  const BASE_URL = import.meta.env.VITE_API_URL;
+
   const [user, setUser] = useState({
     name: "",
     username: "",
@@ -32,7 +34,7 @@ export function SignUp() {
         }
       `;
       try {
-        const response = await fetch("http://localhost:3000/graphql", {
+        const response = await fetch(`${BASE_URL}/graphql`, {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
@@ -79,7 +81,7 @@ export function SignUp() {
     };
 
     try {
-      const response = await fetch("http://localhost:3000/graphql", {
+      const response = await fetch(`${BASE_URL}/graphql`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: mutation, variables }),
