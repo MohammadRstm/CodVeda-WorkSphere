@@ -40,10 +40,10 @@ async function startServer() {
   const reactBuildPath = path.join(__dirname, '../dist');
   app.use(express.static(reactBuildPath));
 
-  app.get('*', (req, res) => {
-    // skip /graphql and /uploads routes
+  app.get('*', (req, res , next) => {
+    
     if (req.path.startsWith('/graphql') || req.path.startsWith('/uploads')) {
-      return;
+      return next();
     }
     res.sendFile(path.join(reactBuildPath, 'index.html'));
   });
